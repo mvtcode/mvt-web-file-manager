@@ -126,4 +126,23 @@
     padding-left: 10px;
     border: none;
     text-decoration: none;
+    /*display: none;*/
+}
+
+/*upload*/
+#some_file_queue
+{
+    border: 1px solid #DDDDDD; 
+    height: 300px;
+    margin-bottom: 10px;
+    overflow: auto;
+    padding: 5px 10px;
+    width: 340px;
+    overflow-y: auto;
+}
+
+#StatusUpload {
+    text-align: center;
+    color: #01ABFA;
+    padding: 0 10px 10px 10px;
 }

@@ -133,6 +133,13 @@
     <Content Include="Default.aspx" />
     <Content Include="Global.asax" />
     <Content Include="Styles\Styles.css" />
+    <Content Include="uploadify\Change Log.txt" />
+    <Content Include="uploadify\jquery.uploadify.js" />
+    <Content Include="uploadify\jquery.uploadify.min.js" />
+    <Content Include="uploadify\license.txt" />
+    <Content Include="uploadify\uploadify-cancel.png" />
+    <Content Include="uploadify\uploadify.css" />
+    <Content Include="uploadify\uploadify.swf" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -186,6 +193,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ajax\command.ashx" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="uploadify\check-exists.php" />
+    <None Include="uploadify\index.php" />
+    <None Include="uploadify\uploadify.php" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
