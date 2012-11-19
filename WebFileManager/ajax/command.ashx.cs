@@ -19,12 +19,12 @@ namespace WebFileManager.ajax
 
         public void ProcessRequest(HttpContext context)
         {
-            context.Response.ContentType = "text/plain";
-            if (!AllowCall(context))
-            {
-                context.Response.Write("Hello World");
-                return;
-            }
+            //context.Response.ContentType = "text/plain";
+            //if (!AllowCall(context))
+            //{
+            //    context.Response.Write("Hello World");
+            //    return;
+            //}
             var cmd = context.Request.QueryString["cmd"];
             switch (cmd)
             {
@@ -49,7 +49,7 @@ namespace WebFileManager.ajax
                 case "move":
                     break;
                 case "upload":
-
+                    uploads(context);
                     break;
                 case "checkexist":
 
@@ -71,6 +71,9 @@ namespace WebFileManager.ajax
                     break;
                 case "viewzip":
 
+                    break;
+                case "treeview":
+                    Load_Treeview(context);
                     break;
             }
         }
@@ -180,6 +183,38 @@ namespace WebFileManager.ajax
         {
             return false;
         }
+
+        private void uploads(HttpContext context)
+        {
+            context.Response.ContentType = "text/plain";
+            context.Response.Expires = -1;
+            try
+            {
+                HttpPostedFile postedFile = context.Request.Files["Filedata"];
+                string sRoot = System.Configuration.ConfigurationManager.AppSettings["RootFolder"];
+                string sFolder = sRoot;
+                if (sFolder.IndexOf(@":\") < 0) sFolder = context.Server.MapPath(sFolder);
+                if (!sFolder.EndsWith(@"\")) sFolder += @"\";
+                if (context.Request["fd"] != null && context.Request["fd"].Length > 0)
+                {
+                    string s = context.Request["fd"];
+                    if (s.StartsWith("Root"))
+                        sFolder = sRoot + s.Substring(4, s.Length - 4).Replace('/', '\\');
+                }
+
+                if (!Directory.Exists(sFolder))
+                    Directory.CreateDirectory(sFolder);
+
+                string filename = postedFile.FileName;
+                postedFile.SaveAs(sFolder + @"\" + filename);
+                context.Response.Write(context.Request["fd"] + "/" + filename);
+                context.Response.StatusCode = 200;
+            }
+            catch (Exception ex)
+            {
+                context.Response.Write("Error: " + ex.Message);
+            }
+        }
         /********************************************************************/
         private void login(HttpContext context)
         {
@@ -197,16 +232,21 @@ namespace WebFileManager.ajax
         }
 
         /********************************************************************/
-        private string sFolder = @"D:\Project\vio v3\ViOlympic\";
-        private void Load_Treeview()
+        private void Load_Treeview(HttpContext context)
         {
+            string sFolder = System.Configuration.ConfigurationManager.AppSettings["RootFolder"];
             string sTree = "";
             sTree = "<li><span title=\"Root\" class=\"open\">Root</span>";
             ListDirectories(sFolder, ref sTree);
             sTree += "</li>";
+
+            context.Response.ContentType = "text/plain";
+            context.Response.Write(sTree);
+            context.Response.StatusCode = 200;
         }
         private void ListDirectories(string path, ref string sPath)
         {
+            string sFolder = System.Configuration.ConfigurationManager.AppSettings["RootFolder"];
             var directories = Directory.GetDirectories(path);
             if (directories.Any())
             {
@@ -214,14 +254,14 @@ namespace WebFileManager.ajax
                 foreach (var directory in directories)
                 {
                     var di = new DirectoryInfo(directory);
-                    //sPath += string.Format("<li><span title=\"{0}\" class=\"folder\">{1}</span>", di.FullName.Replace(sFolder, "Root\\"), di.Name);
-                    sPath += string.Format("<li><span title=\"{0}\">{1}</span>", di.FullName.Replace(sFolder, "Root\\"), di.Name);
+                    sPath += string.Format("<li><span title=\"{0}\">{1}</span>", di.FullName.Replace(sFolder, "Root").Replace('/', '\\'), di.Name);
                     ListDirectories(directory, ref sPath);
                     sPath += "</li>";
                 }
                 sPath += "</ul>";
             }
         }
+
         /********************************************************************/
         private bool AllowCall(HttpContext context)
         {
