@@ -67,6 +67,12 @@
   <ItemGroup>
     <Content Include="images\action_check.gif" />
     <Content Include="images\action_delete.gif" />
+    <Content Include="images\context\cut.png" />
+    <Content Include="images\context\door.png" />
+    <Content Include="images\context\page_white_copy.png" />
+    <Content Include="images\context\page_white_delete.png" />
+    <Content Include="images\context\page_white_edit.png" />
+    <Content Include="images\context\page_white_paste.png" />
     <Content Include="images\edit.gif" />
     <Content Include="images\hd-bg.png" />
     <Content Include="images\icon\capacity.png" />
