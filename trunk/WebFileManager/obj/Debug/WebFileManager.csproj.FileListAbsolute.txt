@@ -1,0 +1,20 @@
+E:\Project\WebFileManager\bin\WebFileManager.dll
+E:\Project\WebFileManager\bin\WebFileManager.pdb
+E:\Project\WebFileManager\obj\Debug\ResolveAssemblyReference.cache
+E:\Project\WebFileManager\obj\Debug\WebFileManager.dll
+E:\Project\WebFileManager\obj\Debug\WebFileManager.pdb
+E:\Project\WebFileManager\obj\Debug\WebFileManager.dll.licenses
+D:\Project\WebFileManager\bin\WebFileManager.dll
+D:\Project\WebFileManager\bin\WebFileManager.pdb
+D:\Project\WebFileManager\obj\Debug\ResolveAssemblyReference.cache
+D:\Project\WebFileManager\obj\Debug\WebFileManager.dll.licenses
+D:\Project\WebFileManager\obj\Debug\WebFileManager.dll
+D:\Project\WebFileManager\obj\Debug\WebFileManager.pdb
+E:\Project\new new new\WebFileManager\bin\WebFileManager.dll
+E:\Project\new new new\WebFileManager\bin\WebFileManager.pdb
+E:\Project\new new new\WebFileManager\obj\Debug\ResolveAssemblyReference.cache
+E:\Project\new new new\WebFileManager\obj\Debug\WebFileManager.dll.licenses
+E:\Project\new new new\WebFileManager\obj\Debug\WebFileManager.dll
+E:\Project\new new new\WebFileManager\obj\Debug\WebFileManager.pdb
+E:\Project\new new new\WebFileManager\bin\Newtonsoft.Json.dll
+E:\Project\new new new\WebFileManager\bin\NLog.dll
