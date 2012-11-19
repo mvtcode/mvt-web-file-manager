@@ -8,6 +8,7 @@ namespace WebFileManager.ajax
     [Serializable]
     public class FileInfo
     {
+        public string id { get; set; }
         public string path { get; set; }
         public string name { get; set; }
         public string type { get; set; }
@@ -19,5 +20,6 @@ namespace WebFileManager.ajax
         public bool isHidden { get; set; }
         public bool isSystem { get; set; }
         public string error { get; set; }
+        public string url { get; set; }
     }
 }

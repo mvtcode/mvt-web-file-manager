@@ -109,10 +109,12 @@ namespace WebFileManager.ajax
             foreach (var directory in directories)//load all folder
             {
                 var di = new DirectoryInfo(directory);
+                string sPath = di.FullName.Replace(sRoot, "Root").Replace('\\', '/');
                 FileInfo info = new FileInfo
                                     {
+                                        id=EnCryptString.EnCrypt(sPath),
                                         error = "",
-                                        path = di.FullName.Replace(sRoot, "Root").Replace('\\', '/'),
+                                        path = sPath,
                                         name = di.Name,
                                         isFile = false,
                                         type = "folder",
@@ -121,7 +123,8 @@ namespace WebFileManager.ajax
                                         DateEdit = di.LastWriteTime,
                                         isHidden = di.Attributes == FileAttributes.Hidden,
                                         isReadOnly = di.Attributes == FileAttributes.ReadOnly,
-                                        isSystem = di.Attributes == FileAttributes.System
+                                        isSystem = di.Attributes == FileAttributes.System,
+                                        url = ""
                                     };
                 oList.Add(info);
             }
@@ -129,10 +132,12 @@ namespace WebFileManager.ajax
             System.IO.DirectoryInfo dir = new System.IO.DirectoryInfo(sFolder);
             foreach (System.IO.FileInfo f in dir.GetFiles("*.*"))//load all file
             {
+                string sPath = f.FullName.Replace(sRoot, "Root").Replace('\\','/');
                 FileInfo info = new FileInfo
                 {
+                    id = EnCryptString.EnCrypt(sPath),
                     error = "",
-                    path = f.FullName.Replace(sRoot, "Root").Replace('\\','/'),
+                    path = sPath,
                     name = f.Name,
                     isFile = true,
                     type = Path.GetExtension(f.FullName).Replace(".",string.Empty),
@@ -254,7 +259,7 @@ namespace WebFileManager.ajax
                 foreach (var directory in directories)
                 {
                     var di = new DirectoryInfo(directory);
-                    sPath += string.Format("<li><span title=\"{0}\">{1}</span>", di.FullName.Replace(sFolder, "Root").Replace('/', '\\'), di.Name);
+                    sPath += string.Format("<li><span title=\"{0}\">{1}</span>", di.FullName.Replace(sFolder, "Root").Replace('\\', '/'), di.Name);
                     ListDirectories(directory, ref sPath);
                     sPath += "</li>";
                 }
