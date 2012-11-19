@@ -1,0 +1,65 @@
+﻿#MainGrid {
+    /*border: 1px solid #FF0000;*/
+    display: block;
+    height: auto;
+}
+
+#MainGrid ul {
+    width: 918px;    
+    margin: 0px;
+    padding: 0px; 
+    border: 1px solid #DDDDDD;
+    list-style: none;
+    border-top: none;    
+}
+
+#MainGrid ul.title {
+    color: #indigo;
+    font-weight: bold;
+    text-align: center;
+    border-top: 1px solid #DDDDDD;
+    background: #EEEEEE;
+}
+
+#MainGrid ul li {
+    display: inline-block;
+    border-right: 1px solid #DDDDDD;  
+    padding: 8px 0;
+    overflow: hidden;
+    white-space: normal;
+    font-size: 12px;
+    /*visibility: hidden;*/
+}
+
+#MainGrid ul.title li.TitleSelect {
+    padding-right: 0;
+}
+
+#MainGrid ul li.TitleSelect
+{
+    text-align: center;
+    width: 46px;
+    padding-right: 1px;
+}
+#MainGrid ul li.name{
+    width: 431px;
+}
+
+#MainGrid ul li.size{
+    width: 92px;
+}
+
+#MainGrid ul li.create{
+    width: 92px;
+}
+
+#MainGrid ul li.modify{
+    width: 92px;
+}
+
+#MainGrid ul li.TitleActive{
+    width: 138px;
+    border-right: none;
+    text-align: center;
+}
+
