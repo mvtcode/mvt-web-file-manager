@@ -28,12 +28,6 @@
         {
             background: #DDDDDD;
         }
-        .m4a
-        {
-            text-indent: 10px;
-            background: url('') left no-repeat;
-        }
-        
         .center
         {
             text-align: center;
@@ -85,12 +79,109 @@
             box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
             width: 99%;
         }
+
     </style>
     <script language="javascript" type="text/javascript">
+        function genLink() {
+            var sLink = $('#HD_CurrentFolder').val();
+            $('#curentFolder').text(sLink);
+
+            var k = sLink.lastIndexOf('/');
+            if (sLink=='Root') {
+                $('#upfd').css('display', 'none');
+            }
+            else {
+                $('#upfd').css('display', 'block');
+            }
+            if (k >= 0) sLink = sLink.substring(0, k);
+
+            $('#upfd li >a').attr("onclick", "GetList(\'" + sLink + "\')");
+        }
+        function GetList(fd) {
+            var url = "/ajax/command.ashx?cmd=getlist&fd=" + fd;
+            $.getJSON(url + "&format=json&jsoncallback=?",
+                function (result) {
+                    $('#ListItem').html('loading...');
+                    if (fd == '') {
+                        $('#HD_CurrentFolder').val('Root');
+                    }
+                    else {
+                        $('#HD_CurrentFolder').val(fd);
+                    }
+                    genLink();
+                    if (result != null && result.error != null) {
+                        alert(result.error);
+                    }
+                    else {
+                        if (result != null && result.length > 0) {
+                            var sHtml = '';
+                            $.each(result, function (i, val) {
+                                if (val.type == "folder") {
+                                    sHtml += '<ul class="listfolder">';
+                                }
+                                else {
+                                    sHtml += '<ul class="itemfile">';
+                                }
+                                sHtml += '<li class="TitleSelect"><input type="checkbox" id="selected_' + i + '" /></li>';
+                                if (val.type == "folder") {
+                                    sHtml += '<li class="name"><a href="javascript:void(0);" onclick="GetList(\'' + val.path + '\')">' + val.name + '</a></li>';
+                                }
+                                else {
+                                    sHtml += '<li class="name">' + val.name + '</li>';
+                                }
+                                sHtml += '<li class="size">' + val.length + '</li>';
+                                sHtml += '<li class="create">' + ShowFormatDate(val.DateCreate) + '</li>';
+                                sHtml += '<li class="modify">' + ShowFormatDate(val.DateEdit) + '</li>';
+                                sHtml += '<li class="TitleActive">';
+                                if (val.type == "folder") {
+                                    sHtml += '<img src="images/icon/zipIcon.png" title="zip folder" />';
+                                    sHtml += '<img src="images/icon/folder_rename.png" title="rename" />';
+                                    sHtml += '<img src="images/icon/folder_move.png" title="move folder to other folder" />';
+                                    sHtml += '<img src="images/icon/folder_download.png" title="zip and download folder" />';
+                                    sHtml += '<img src="images/icon/folder_option.png" title="option" />';
+                                    sHtml += '<img src="images/icon/folder_delete.png" title="delete forder" />';
+                                }
+                                else {
+                                    sHtml += '<img src="images/icon/file_rename.png" title="rename" />';
+                                    sHtml += '<img src="images/icon/file-move.png" title="move" />';
+                                    sHtml += '<img src="images/icon/file_edit.png" title="edit text" />';
+                                    sHtml += '<img src="images/icon/file_download.png" title="download file" />';
+                                    sHtml += '<img src="images/icon/file_delete.png" title="delete file" />';
+                                }
+                                sHtml += '</li>';
+                                sHtml += '</ul>';
+                            });
+                            $('#ListItem').html(sHtml);
+                        }
+                        else {
+                            $('#ListItem').html('no item');
+                        }
+                    }
+                });
+        }
+
+        function ShowFormatDateTime(oDate) {
+            if (oDate == null) return "";
+            return oDate.getHours() + ':' +
+                oDate.getMinutes() + ':' +
+                    oDate.getSeconds() + ' ' +
+                        oDate.getDate() + '/' +
+                            (oDate.getMonth() + 1) + '/' +
+                                oDate.getFullYear();
+        }
+
+        function ShowFormatDate(oDate) {
+            if (oDate == null) return "";
+            return oDate.getDate() + '/' +
+                (oDate.getMonth() + 1) + '/' +
+                    oDate.getFullYear();
+        }
+        
         $(document).ready(function () {
+            GetList('');
             //$('tr:Odd').addClass('chan');
             //$('tr:Even').addClass('le');
-            
+
             //            $("tr").mouseenter(function () {
             //                if (this.find('td:eq(0)').find('input[type=checkbox]').is(':checked')) {
             //                    //chawngr lamf j
@@ -104,13 +195,13 @@
             //                }
             //            });
 
-//            $("tr td input[type=checkbox]").change(function () {
-//                if ($(this).is(':checked')) {
-//                    $(this).parent("td").parent("tr").addClass("select");
-//                } else {
-//                    $(this).parent("td").parent("tr").removeClass("select");
-//                }
-//            });
+            //            $("tr td input[type=checkbox]").change(function () {
+            //                if ($(this).is(':checked')) {
+            //                    $(this).parent("td").parent("tr").addClass("select");
+            //                } else {
+            //                    $(this).parent("td").parent("tr").removeClass("select");
+            //                }
+            //            });
 
             //            $('td').filter(function () {
             //                //return (this.text().lastIndexOf('.m4a')>0);
@@ -173,7 +264,7 @@
             $('#treeview').find("span").attr('style', "cursor:pointer;cursor: hand").addClass("folders");
 
             //$('#treeview').find("li").find("span").bind("onclick", function () { return false; });
-            
+
 
         });
     </script>
@@ -192,25 +283,19 @@
         </div>
         <div class="main">
             <div>
-                <input type="submit" name="" value="Delete" id="MainContent_Button1"
-                    class="button" />
-                <input type="submit" name="" value="New folder" id="MainContent_Button6"
-                    class="button" />
-                <input type="submit" name="" value="Move" id="MainContent_Button3"
-                    class="button" />
-                <input type="submit" name="" value="Upload" id="MainContent_Button2"
-                    class="button popup-button" href="#popup_Upload" />
-                <input type="submit" name="" value="UnZip" id="MainContent_Button4"
-                    class="button" />
-                <input type="submit" name="" value="Download" id="MainContent_Button5"
-                    class="button" />
+                <input type="submit" name="" value="Delete" id="MainContent_Button1" class="button" />
+                <input type="submit" name="" value="New folder" id="MainContent_Button6" class="button" />
+                <input type="submit" name="" value="Move" id="MainContent_Button3" class="button" />
+                <input type="submit" name="" value="Upload" id="MainContent_Button2" class="button popup-button"
+                       href="#popup_Upload" />
+                <input type="submit" name="" value="UnZip" id="MainContent_Button4" class="button" />
+                <input type="submit" name="" value="Download" id="MainContent_Button5" class="button" />
             </div>
-            <div class="folder">
-                C:\Users\Admin\Desktop\DJ\
+            <div class="folder" id="curentFolder">
+                &nbsp;
             </div>
             <div style="clear: both">
             </div>
-
             <div id="MainGrid">
                 <ul class="title">
                     <li class="TitleSelect">Select</li>
@@ -220,34 +305,43 @@
                     <li class="modify">Date modify</li>
                     <li class="TitleActive">Active</li>
                 </ul>
-                <div id="item" class="item">
-                    <ul>
-                        <li class="TitleSelect"><input type="checkbox" id="selected"/></li>
+                <ul class="listitem" id="upfd">
+                    <li class="upFolder"><a href="javascript:void(0);"><img src="images/icon/upLevel.gif" /> Up...</a></li>
+                </ul>
+                <div id="ListItem" class="listitem">
+                    <ul class="listfolder">
+                        <li class="TitleSelect">
+                            <input type="checkbox" id="selected" /></li>
                         <li class="name">FileName</li>
                         <li class="size">File size</li>
                         <li class="create">Date create</li>
                         <li class="modify">Date modify</li>
-                        <li class="TitleActive"></li>
+                        <li class="TitleActive">
+                            <img src="images/icon/zipIcon.png" title="zip folder" />
+                            <img src="images/icon/folder_rename.png" title="rename" />
+                            <img src="images/icon/folder_move.png" title="move folder to other folder" />
+                            <img src="images/icon/folder_download.png" title="zip and download folder" />
+                            <img src="images/icon/folder_option.png" title="option" />
+                            <img src="images/icon/folder_delete.png" title="delete forder" />
+                        </li>
                     </ul>
-                    <ul>
-                        <li class="TitleSelect"><input type="checkbox" id="Checkbox1"/></li>
+                    <ul class="itemfile">
+                        <li class="TitleSelect">
+                            <input type="checkbox" id="Checkbox1" /></li>
                         <li class="name">FileName</li>
                         <li class="size">File size</li>
                         <li class="create">Date create</li>
                         <li class="modify">Date modify</li>
-                        <li class="TitleActive"></li>
+                        <li class="TitleActive">
+                            <img src="images/icon/file_rename.png" title="rename" />
+                            <img src="images/icon/file-move.png" title="move" />
+                            <img src="images/icon/file_edit.png" title="edit text" />
+                            <img src="images/icon/file_download.png" title="download file" />
+                            <img src="images/icon/file_delete.png" title="delete file" />
+                        </li>
                     </ul>
-                        <ul>
-                            <li class="TitleSelect"><input type="checkbox" id="Checkbox2"/></li>
-                            <li class="name">FileName</li>
-                            <li class="size">File size</li>
-                            <li class="create">Date create</li>
-                            <li class="modify">Date modify</li>
-                            <li class="TitleActive"></li>
-                        </ul>
                 </div>
             </div>
-
             <div id="popup_confirm" class="popup">
                 <div class="popup-header">
                     <h2>
@@ -257,9 +351,9 @@
                 </div>
                 <div style="text-align: center; padding: 10px 0px;">
                     <input type="submit" name="ctl00$MainContent$BT_Delete" value="Delete" id="MainContent_BT_Delete"
-                        class="button" />
+                           class="button" />
                     <input type="submit" name="ctl00$MainContent$BT_Confirm_Cancel" value="Cancel" onclick="javascript:return false;"
-                        id="MainContent_BT_Confirm_Cancel" class="bt_cancel button" />
+                           id="MainContent_BT_Confirm_Cancel" class="bt_cancel button" />
                 </div>
             </div>
             <div id="popup_Rename" class="popup">
@@ -273,9 +367,9 @@
                 </div>
                 <div style="text-align: center; padding-bottom: 10px;">
                     <input type="submit" name="ctl00$MainContent$BT_Sublmit" value="Submit" id="MainContent_BT_Sublmit"
-                        class="button" />
+                           class="button" />
                     <input type="submit" name="ctl00$MainContent$BT_Cancel" value="Cancel" onclick="javascript:return false;"
-                        id="MainContent_BT_Cancel" class="bt_cancel button" />
+                           id="MainContent_BT_Cancel" class="bt_cancel button" />
                 </div>
             </div>
             <div id="popup-move" class="popup">
@@ -291,14 +385,14 @@
                 <div style="height: 250px; overflow-y: auto; padding: 0px 0px 10px 10px; border: 1px solid #CCC">
                     <ul id="treeview" class="filetree">
                         <li><span title="Root" class="open">Root</span><ul>
-                            <li><span title="Root\Ape">Ape</span></li><li><span title="Root\DJ">DJ</span></li><li>
-                                <span title="Root\dts">dts</span></li><li><span title="Root\nhac trong the">nhac trong
-                                    the</span></li><li><span title="Root\PhamTruong-Dance">PhamTruong-Dance</span></li><li>
-                                        <span title="Root\Tong Hop">Tong Hop</span></li><li><span title="Root\WAV">WAV</span><ul>
-                                            <li><span title="Root\WAV\爱琴海2010DJ嗨曲[APE+CUE]">爱琴海2010DJ嗨曲[APE+CUE]</span></li><li>
-                                                <span title="Root\WAV\爱车慢摇英文版[WAV+CUE]">爱车慢摇英文版[WAV+CUE]</span></li></ul>
-                                        </li>
-                        </ul>
+                                                                           <li><span title="Root\Ape">Ape</span></li><li><span title="Root\DJ">DJ</span></li><li>
+                                                                                                                                                                 <span title="Root\dts">dts</span></li><li><span title="Root\nhac trong the">nhac trong
+                                                                                                                                                                                                               the</span></li><li><span title="Root\PhamTruong-Dance">PhamTruong-Dance</span></li><li>
+                                                                                                                                                                                                                                                                                                      <span title="Root\Tong Hop">Tong Hop</span></li><li><span title="Root\WAV">WAV</span><ul>
+                                                                                                                                                                                                                                                                                                                                                                                               <li><span title="Root\WAV\爱琴海2010DJ嗨曲[APE+CUE]">爱琴海2010DJ嗨曲[APE+CUE]</span></li><li>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   <span title="Root\WAV\爱车慢摇英文版[WAV+CUE]">爱车慢摇英文版[WAV+CUE]</span></li></ul>
+                                                                                                                                                                                                                                                                                                                                                      </li>
+                                                                       </ul>
                         </li>
                     </ul>
                 </div>
@@ -307,9 +401,9 @@
                 </div>
                 <div style="text-align: center; padding: 10px 0px;">
                     <input type="submit" name="ctl00$MainContent$BT_Move" value="Move" id="MainContent_BT_Move"
-                        class="button" />
+                           class="button" />
                     <input type="submit" name="ctl00$MainContent$BT_Move_Cancel" value="Cancel" onclick="javascript:return false;"
-                        id="MainContent_BT_Move_Cancel" class="bt_cancel button" />
+                           id="MainContent_BT_Move_Cancel" class="bt_cancel button" />
                 </div>
             </div>
             <div id="popup_Upload" class="popup">
@@ -323,9 +417,9 @@
                 </div>
                 <div style="text-align: center; padding-bottom: 10px;">
                     <input type="submit" name="ctl00$MainContent$BT_Upload" value="Upload" id="MainContent_BT_Upload"
-                        class="button" />
+                           class="button" />
                     <input type="submit" name="ctl00$MainContent$BT_Upload_Cancel" value="Cancel" onclick="javascript:return false;"
-                        id="MainContent_BT_Upload_Cancel" class="bt_cancel button" />
+                           id="MainContent_BT_Upload_Cancel" class="bt_cancel button" />
                 </div>
             </div>
             <input name="ctl00$MainContent$HD_File" type="hidden" id="MainContent_HD_File" />
@@ -333,9 +427,10 @@
         <div class="clear">
         </div>
     </div>
-    <div class="footer">
-        chán chết chẳng có cái j
-    </div>
+        <div class="footer">
+            chán chết chẳng có cái j
+        </div>
+    <input type="hidden" value="" id="HD_CurrentFolder"/>
     </form>
 </body>
 </html>

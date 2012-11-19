@@ -13,6 +13,16 @@
     border-top: none;    
 }
 
+#MainGrid ul li {
+    display: inline-block;
+    border-right: 1px solid #DDDDDD;  
+    padding: 8px 0;
+    overflow: hidden;
+    white-space: normal;
+    font-size: 12px;
+}
+
+/*title*/
 #MainGrid ul.title {
     color: #indigo;
     font-weight: bold;
@@ -21,45 +31,99 @@
     background: #EEEEEE;
 }
 
-#MainGrid ul li {
-    display: inline-block;
-    border-right: 1px solid #DDDDDD;  
-    padding: 8px 0;
-    overflow: hidden;
-    white-space: normal;
-    font-size: 12px;
-    /*visibility: hidden;*/
-}
-
-#MainGrid ul.title li.TitleSelect {
-    padding-right: 0;
-}
-
-#MainGrid ul li.TitleSelect
+#MainGrid ul.title li.TitleSelect
 {
+    padding-right: 0;
     text-align: center;
     width: 46px;
     padding-right: 1px;
 }
-#MainGrid ul li.name{
+#MainGrid ul.title li.name{
     width: 431px;
 }
 
-#MainGrid ul li.size{
+#MainGrid ul.title li.size{
     width: 92px;
 }
 
-#MainGrid ul li.create{
+#MainGrid ul.title li.create{
     width: 92px;
 }
 
-#MainGrid ul li.modify{
+#MainGrid ul.title li.modify{
     width: 92px;
 }
 
-#MainGrid ul li.TitleActive{
+#MainGrid ul.title li.TitleActive{
     width: 138px;
     border-right: none;
     text-align: center;
 }
 
+/*folder-item*/
+#MainGrid .listitem li.TitleSelect
+{
+    text-align: center;
+    width: 46px;
+    padding-right: 1px;
+}
+#MainGrid .listitem li.name{
+    width: 411px;
+    background: url('/images/icon/file.png') left no-repeat;/*icon default*/
+}
+
+#MainGrid .listitem li.size{
+    width: 72px;
+    padding-left: 20px;
+    /*background: url('/images/icon/capacity.png') left no-repeat;*/
+}
+
+#MainGrid .listitem li.create{
+    width: 72px;
+    padding-left: 20px;
+    background: url('/images/icon/date-icon.png') left no-repeat;
+}
+
+#MainGrid .listitem li.modify{
+    width: 72px;
+    padding-left: 20px;
+    background: url('/images/icon/date-icon.png') left no-repeat;
+}
+
+#MainGrid .listitem li.TitleActive{
+    width: 138px;
+    border-right: none;
+    text-align: center;
+}
+
+#MainGrid .listitem li.TitleActive img{
+    border: none;
+    cursor: hand;
+    cursor:pointer;
+}
+/*folder*/
+#MainGrid .listitem .listfolder .name {
+    padding-left: 20px;
+    background: url('/images/icon/folder-icon.png') left no-repeat;
+    /*width: 512px;*/
+}
+
+/*item*/
+#MainGrid .listitem .itemfile .name {
+    padding-left: 20px;
+}
+
+#MainGrid .listitem .itemfile li.size{
+    background: url('/images/icon/capacity.png') left no-repeat;
+}
+/*file type*/
+#MainGrid .listitem .itemfile .name .mp3 {
+    background: url('/images/icon/folder-icon.png') left no-repeat;
+}
+
+/**/
+#MainGrid .listitem .upFolder {
+    padding-left: 10px;
+    border: none;
+    text-decoration: none;
+}

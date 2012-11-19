@@ -20,11 +20,11 @@ namespace WebFileManager.ajax
         public void ProcessRequest(HttpContext context)
         {
             context.Response.ContentType = "text/plain";
-            //if (!AllowCall(context))
-            //{
-            //    context.Response.Write("Hello World");
-            //    return;
-            //}
+            if (!AllowCall(context))
+            {
+                context.Response.Write("Hello World");
+                return;
+            }
             var cmd = context.Request.QueryString["cmd"];
             switch (cmd)
             {
@@ -81,22 +81,27 @@ namespace WebFileManager.ajax
             context.Response.ContentType = "application/json";
             context.Response.ContentEncoding = Encoding.UTF8;
             string sContent = "";
-            List<FileInfo> oList = new List<FileInfo>();
+            
             string sRoot = System.Configuration.ConfigurationManager.AppSettings["RootFolder"];
             string sFolder = sRoot;
             if (sFolder.IndexOf(@":\") < 0) sFolder = context.Server.MapPath(sFolder);
             if (!sFolder.EndsWith(@"\")) sFolder += @"\";
-            if (context.Request.QueryString["fd"] != null) sFolder += context.Request.QueryString["fd"].ToString();
+            if (context.Request.QueryString["fd"] != null && context.Request.QueryString["fd"].Length>0)
+            {
+                string s = context.Request.QueryString["fd"];
+                if (s.StartsWith("Root"))
+                    sFolder =sRoot + s.Substring(4, s.Length-4).Replace('/','\\');
+            }
             if (!Directory.Exists(sFolder))
             {
                 FileInfo info = new FileInfo();
                 info.error = "folder not exist!";
-                oList.Add(info);
-                sContent = Newtonsoft.Json.JsonConvert.SerializeObject(oList);
+                sContent = Newtonsoft.Json.JsonConvert.SerializeObject(info);
                 context.Response.Write(sContent);
                 return;
             }
 
+            List<FileInfo> oList = new List<FileInfo>();
             var directories = Directory.GetDirectories(sFolder);
             foreach (var directory in directories)//load all folder
             {
@@ -104,7 +109,7 @@ namespace WebFileManager.ajax
                 FileInfo info = new FileInfo
                                     {
                                         error = "",
-                                        path = di.FullName.Replace(sRoot, "Root\\"),
+                                        path = di.FullName.Replace(sRoot, "Root").Replace('\\', '/'),
                                         name = di.Name,
                                         isFile = false,
                                         type = "folder",
@@ -124,10 +129,10 @@ namespace WebFileManager.ajax
                 FileInfo info = new FileInfo
                 {
                     error = "",
-                    path = f.FullName.Replace(sRoot, "Root\\"),
+                    path = f.FullName.Replace(sRoot, "Root").Replace('\\','/'),
                     name = f.Name,
                     isFile = true,
-                    type = Path.GetExtension(f.FullName),
+                    type = Path.GetExtension(f.FullName).Replace(".",string.Empty),
                     length = UntilityFunction.ShowCappacityFile(f.Length),
                     DateCreate = f.CreationTime,
                     DateEdit = f.LastWriteTime,
@@ -139,7 +144,7 @@ namespace WebFileManager.ajax
             }
 
             sContent = Newtonsoft.Json.JsonConvert.SerializeObject(oList, new JavaScriptDateTimeConverter());
-            context.Response.Write(sContent);
+            context.Response.Write(context.Request["jsoncallback"] + "(" + sContent + ")");
         }
 
         private void rename(HttpContext context)
