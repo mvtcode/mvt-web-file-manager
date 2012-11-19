@@ -13,7 +13,7 @@ namespace WebFileManager
 {
     public partial class _Default : System.Web.UI.Page
     {
-        private string sFolder = @"E:\music\";
+        private string sFolder = @"D:\viethot\";
         protected static string sTree = "";
         protected void Page_Load(object sender, EventArgs e)
         {

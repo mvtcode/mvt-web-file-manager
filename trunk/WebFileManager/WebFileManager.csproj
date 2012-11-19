@@ -69,6 +69,23 @@
     <Content Include="images\action_delete.gif" />
     <Content Include="images\edit.gif" />
     <Content Include="images\hd-bg.png" />
+    <Content Include="images\icon\capacity.png" />
+    <Content Include="images\icon\date-icon.png" />
+    <Content Include="images\icon\file-move.png" />
+    <Content Include="images\icon\file.png" />
+    <Content Include="images\icon\file_delete.png" />
+    <Content Include="images\icon\file_download.png" />
+    <Content Include="images\icon\file_edit.png" />
+    <Content Include="images\icon\file_rename.png" />
+    <Content Include="images\icon\folder-icon.png" />
+    <Content Include="images\icon\folder_delete.png" />
+    <Content Include="images\icon\folder_download.png" />
+    <Content Include="images\icon\folder_move.png" />
+    <Content Include="images\icon\folder_option.png" />
+    <Content Include="images\icon\folder_rename.png" />
+    <Content Include="images\icon\option_folder.png" />
+    <Content Include="images\icon\upLevel.gif" />
+    <Content Include="images\icon\zipIcon.png" />
     <Content Include="images\loading.gif" />
     <Content Include="images\treeview\ajax-loader.gif" />
     <Content Include="images\treeview\file.gif" />
@@ -123,6 +140,7 @@
     <Content Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
+    <Content Include="WebForm1.aspx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ajax\command.ashx.cs">
@@ -148,6 +166,13 @@
     </Compile>
     <Compile Include="Site.Master.designer.cs">
       <DependentUpon>Site.Master</DependentUpon>
+    </Compile>
+    <Compile Include="WebForm1.aspx.cs">
+      <DependentUpon>WebForm1.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WebForm1.aspx.designer.cs">
+      <DependentUpon>WebForm1.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
