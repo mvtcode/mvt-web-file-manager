@@ -89,14 +89,21 @@
     .context-menu-item.icon:before {}
  */
 .context-menu-item.icon { min-height: 18px; background-repeat: no-repeat; background-position: 4px 2px; }
-.context-menu-item.icon-edit { background-image: url(images/page_white_edit.png); }
-.context-menu-item.icon-cut { background-image: url(images/cut.png); }
-.context-menu-item.icon-copy { background-image: url(images/page_white_copy.png); }
-.context-menu-item.icon-paste { background-image: url(images/page_white_paste.png); }
-.context-menu-item.icon-delete { background-image: url(images/page_white_delete.png); }
-.context-menu-item.icon-add { background-image: url(images/page_white_add.png); }
-.context-menu-item.icon-quit { background-image: url(images/door.png); }
+.context-menu-item.icon-edit { background-image: url(/images/context/page_white_edit.png); }
+.context-menu-item.icon-cut { background-image: url(/images/context/cut.png); }
+.context-menu-item.icon-copy { background-image: url(/images/context/page_white_copy.png); }
+.context-menu-item.icon-paste { background-image: url(/images/context/page_white_paste.png); }
+.context-menu-item.icon-delete { background-image: url(/images/context/page_white_delete.png); }
+.context-menu-item.icon-add { background-image: url(/images/context/page_white_add.png); }
+.context-menu-item.icon-quit { background-image: url(/images/context/door.png); }
 
+.context-menu-item.icon-Open { background-image: url(/images/icon/folder-icon.png); }
+.context-menu-item.icon-Zip { background-image: url(/images/icon/zipIcon.png); }
+.context-menu-item.icon-RenameFolder { background-image: url(/images/icon/folder_rename.png); }
+.context-menu-item.icon-DeleteFolder { background-image: url(/images/icon/folder_delete.png); }
+.context-menu-item.icon-MoveFolder { background-image: url(/images/icon/folder_move.png); }
+.context-menu-item.icon-DownloadFolder { background-image: url(/images/icon/folder_download.png); }
+.context-menu-item.icon-SettingFolder { background-image: url(/images/icon/folder_option.png); }
 /* vertically align inside labels */
 .context-menu-input > label > * { vertical-align: top; }
 
