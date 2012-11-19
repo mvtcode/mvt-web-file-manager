@@ -9,10 +9,12 @@
     <link href="Styles/jquery-ui-1.9.1.custom.min.css" rel="stylesheet" type="text/css" />
     <link href="Styles/jquery.treeview.css" rel="stylesheet" type="text/css" />
     <link href="uploadify/uploadify.css" rel="stylesheet" type="text/css" />
+    <link href="Styles/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
     <script src="Scripts/popup.js" type="text/javascript"></script>
     <script src="Scripts/jquery-ui-1.9.1.custom.min.js" type="text/javascript"></script>
     <script src="Scripts/jquery.treeview.js" type="text/javascript"></script>
     <script src="uploadify/jquery.uploadify.min.js" type="text/javascript"></script>
+    <script src="Scripts/jquery.contextMenu.js" type="text/javascript"></script>
     <style>
         .chan
         {
@@ -83,6 +85,7 @@
         }        
     </style>
     <script language="javascript" type="text/javascript">
+        var objList;// = new Array();
         function genLink() {
             var sLink = $('#HD_CurrentFolder').val();
             $('#curentFolder').text(sLink);
@@ -115,13 +118,17 @@
                     }
                     else {
                         if (result != null && result.length > 0) {
+                            objList = result;
                             var sHtml = '';
                             $.each(result, function (i, val) {
+
+                                //objList[val.id] = new Array(val);
+
                                 if (val.type == "folder") {
-                                    sHtml += '<ul class="listfolder">';
+                                    sHtml += '<ul class="listfolder" id="' + val.id + '">';
                                 }
                                 else {
-                                    sHtml += '<ul class="itemfile">';
+                                    sHtml += '<ul class="itemfile" id="' + val.id + '">';
                                 }
                                 sHtml += '<li class="TitleSelect"><input type="checkbox" id="selected_' + i + '" /></li>';
                                 if (val.type == "folder") {
@@ -256,6 +263,7 @@
                     }
                 });
             });
+            //$('#curentFolder').
         });
 
         function BuildTreeview() {
@@ -270,15 +278,41 @@
             });
 
             $('#treeview').find("span").click(function () {
-                //alert(this.toString());
-                //alert($(this).attr('title'));
                 $('#txtFolderMove').val($(this).attr('title'));
             });
 
             $('#treeview').find("span").attr('style', "cursor:pointer;cursor: hand").addClass("folders");
-
-            //$('#treeview').find("li").find("span").bind("onclick", function () { return false; });
         }
+
+        $(function () {
+            $.contextMenu({
+                selector: '#ListItem .listfolder .name',
+                callback: function (key, options) {
+                    var id = $(this).parent().attr('id');
+                    if (key == "Open") {
+                        for (var i = 0; i < objList.length;i++ ) {
+                            if (objList[i].id == id) {
+                                GetList(objList[i].path);
+                            }
+                        }
+                    }
+                },
+                items: {
+                    "Open": { name: "Open", icon: "Open" },
+                    "Zip": { name: "Zip", icon: "Zip" },
+                    "Rename": { name: "Rename", icon: "Rename" },
+                    "Move": { name: "Move", icon: "Move" },
+                    "Delete": { name: "Delete", icon: "Delete" },
+                    "Download": { name: "Download", icon: "Download" },
+                    "line": "---------",
+                    "Setting": { name: "Setting", icon: "Setting" }
+                }
+            });
+
+            $('#ListItem .listfolder .name').on('click', function (e) {
+                alert($(this).parent().attr('id'));
+            });
+        });
     </script>
 </head>
 <body>
@@ -411,32 +445,32 @@
     </form>
     <script>
 
-            function BuildUpload() {
-                $("#file_upload").uploadify({
-                    'swf': '/uploadify/uploadify.swf',
-                    'uploader': '/ajax/command.ashx?cmd=upload',
-                    'formData': {'fd': $('#HD_CurrentFolder').val(),'vkl':'vcc' },
-                    'auto': false,
-                    'buttonText': 'BROWSE...',
-                    'queueID': 'some_file_queue',
-                    'onUploadStart': function (file) {
-                        $('#StatusUpload').text('Starting to upload ' + file.name);
-                    },
-                    'onUploadSuccess': function (file, data, response) {
-                        $('#StatusUpload').text('The file ' + file.name + ' was successfully uploaded with a response of ' + response + ':' + data);
-                    },
-                    'onQueueComplete': function () {
-                        $('#StatusUpload').text('Upload successfully');
-                    }
-                });
-                $('#StatusUpload').text('Select file for upload');
-            }
+        function BuildUpload() {
+            $("#file_upload").uploadify({
+                'swf': '/uploadify/uploadify.swf',
+                'uploader': '/ajax/command.ashx?cmd=upload',
+                'formData': {'fd': $('#HD_CurrentFolder').val(),'vkl':'vcc' },
+                'auto': false,
+                'buttonText': 'BROWSE...',
+                'queueID': 'some_file_queue',
+                'onUploadStart': function (file) {
+                    $('#StatusUpload').text('Starting to upload ' + file.name);
+                },
+                'onUploadSuccess': function (file, data, response) {
+                    $('#StatusUpload').text('The file ' + file.name + ' was successfully uploaded with a response of ' + response + ':' + data);
+                },
+                'onQueueComplete': function () {
+                    $('#StatusUpload').text('Upload successfully');
+                }
+            });
+            $('#StatusUpload').text('Select file for upload');
+        }
 
-            function destroyUpload() {
-                $('#file_upload').uploadify('destroy');
-                $('#some_file_queue').html('');
-                $('#StatusUpload').text('');
-            }
+        function destroyUpload() {
+            $('#file_upload').uploadify('destroy');
+            $('#some_file_queue').html('');
+            $('#StatusUpload').text('');
+        }
 
     </script>
 </body>
