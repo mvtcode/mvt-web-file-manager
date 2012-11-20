@@ -41,7 +41,7 @@ namespace WebFileManager.ajax
                     getlist(context);
                     break;
                 case "rename":
-
+                    rename(context);
                     break;
                 case "delete":
 
@@ -75,6 +75,9 @@ namespace WebFileManager.ajax
                 case "treeview":
                     Load_Treeview(context);
                     break;
+                case "download":
+                    DownloadFile(context);
+                    break;
             }
         }
 
@@ -84,23 +87,20 @@ namespace WebFileManager.ajax
             context.Response.ContentType = "application/json";
             context.Response.ContentEncoding = Encoding.UTF8;
             string sContent = "";
-            
+
             string sRoot = System.Configuration.ConfigurationManager.AppSettings["RootFolder"];
             string sFolder = sRoot;
             if (sFolder.IndexOf(@":\") < 0) sFolder = context.Server.MapPath(sFolder);
             if (!sFolder.EndsWith(@"\")) sFolder += @"\";
-            if (context.Request.QueryString["fd"] != null && context.Request.QueryString["fd"].Length>0)
+            if (context.Request.QueryString["fd"] != null && context.Request.QueryString["fd"].Length > 0)
             {
                 string s = context.Request.QueryString["fd"];
                 if (s.StartsWith("Root"))
-                    sFolder =sRoot + s.Substring(4, s.Length-4).Replace('/','\\');
+                    sFolder = sRoot + s.Substring(4, s.Length - 4).Replace('/', '\\');
             }
             if (!Directory.Exists(sFolder))
             {
-                FileInfo info = new FileInfo();
-                info.error = "folder not exist!";
-                sContent = Newtonsoft.Json.JsonConvert.SerializeObject(info);
-                context.Response.Write(sContent);
+                context.Response.Write("{error:'folder not exist'}");
                 return;
             }
 
@@ -112,7 +112,7 @@ namespace WebFileManager.ajax
                 string sPath = di.FullName.Replace(sRoot, "Root").Replace('\\', '/');
                 FileInfo info = new FileInfo
                                     {
-                                        id=EnCryptString.EnCrypt(sPath),
+                                        id = EnCryptString.EnCrypt(sPath),
                                         error = "",
                                         path = sPath,
                                         name = di.Name,
@@ -132,7 +132,7 @@ namespace WebFileManager.ajax
             System.IO.DirectoryInfo dir = new System.IO.DirectoryInfo(sFolder);
             foreach (System.IO.FileInfo f in dir.GetFiles("*.*"))//load all file
             {
-                string sPath = f.FullName.Replace(sRoot, "Root").Replace('\\','/');
+                string sPath = f.FullName.Replace(sRoot, "Root").Replace('\\', '/');
                 FileInfo info = new FileInfo
                 {
                     id = EnCryptString.EnCrypt(sPath),
@@ -140,7 +140,7 @@ namespace WebFileManager.ajax
                     path = sPath,
                     name = f.Name,
                     isFile = true,
-                    type = Path.GetExtension(f.FullName).Replace(".",string.Empty),
+                    type = Path.GetExtension(f.FullName).Replace(".", string.Empty),
                     length = UntilityFunction.ShowCappacityFile(f.Length),
                     DateCreate = f.CreationTime,
                     DateEdit = f.LastWriteTime,
@@ -157,7 +157,35 @@ namespace WebFileManager.ajax
 
         private void rename(HttpContext context)
         {
-            context.Response.Write("");
+            context.Response.ContentType = "application/json";
+            FileInfo oItem = new FileInfo();
+            try
+            {
+                string sOld =IdToFile(context.Request["id"],context);
+                string sNew = context.Request["newname"];
+                bool isFile = (context.Request["isFile"] == "true");
+                //string stype = context.Request["type"];
+                if(isFile)
+                {
+                    File.Move(sOld,Path.GetDirectoryName(sOld) + "\\" + sNew + Path.GetExtension(sOld));
+                }
+                else
+                {
+                    System.IO.Directory.Move(sOld,sNew);
+                }
+            }
+            catch (Exception ex)
+            {
+                oItem.error = ex.Message;
+                throw;
+            }
+            finally
+            {
+                string sContent = Newtonsoft.Json.JsonConvert.SerializeObject(oItem, new JavaScriptDateTimeConverter());
+                context.Response.Write(context.Request["jsoncallback"] + "(" + sContent + ")");
+            }
+
+            
         }
 
         private void delete(HttpContext context)
@@ -174,6 +202,78 @@ namespace WebFileManager.ajax
         //zip
         //viewzip
 
+        private void DownloadFile(HttpContext context)
+        {
+            string sid = context.Request["id"];
+            if (sid != null)
+            {
+                string[] arr = sid.Split(';');
+                if (arr != null && arr.Length > 0)
+                {
+                    if (arr.Length == 1)
+                    {
+                        string sFile = IdToFile(arr[0],context);
+                        if (!File.Exists(sFile))
+                        {
+                            context.Response.ContentType = "application/json";
+                            context.Response.Write("{error:'file not exist'}");
+                            return;
+                        }
+                        else
+                        {
+                            System.IO.FileInfo fi = new System.IO.FileInfo(sFile);
+                            long sz = fi.Length;
+                            context.Response.ClearContent();
+                            context.Response.ContentType = MimeType(Path.GetExtension(sFile));
+                            context.Response.AddHeader("Content-Disposition", string.Format("attachment; filename = {0}", fi.Name));
+                            context.Response.AddHeader("Content-Length", sz.ToString("F0"));
+                            context.Response.TransmitFile(sFile);
+                            context.Response.End();
+                        }
+
+                    }
+                    //else
+                    //{
+                    //    using (Ionic.Zip.ZipFile zip = new Ionic.Zip.ZipFile())
+                    //    {
+                    //        foreach (var s in arr)
+                    //        {
+                    //            zip.AddFile(s, "\\");
+                    //        }
+                    //        zip.Save();
+                    //    }
+                    //}
+                }
+            }
+            context.Response.Write("");
+        }
+
+        public static string MimeType(string Extension)
+        {
+            string mime = "application/octetstream";
+            if (string.IsNullOrEmpty(Extension))
+                return mime;
+            string ext = Extension.ToLower();
+            Microsoft.Win32.RegistryKey rk = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(ext);
+            if (rk != null && rk.GetValue("Content Type") != null)
+                mime = rk.GetValue("Content Type").ToString();
+            return mime;
+        }
+
+        public static string IdToFile(string id, HttpContext context)
+        {
+            string sRoot = System.Configuration.ConfigurationManager.AppSettings["RootFolder"];
+            string sFolder = EnCryptString.DeCrypt(id);
+            if (sRoot.IndexOf(@":\") < 0) sRoot = context.Server.MapPath(sRoot);
+            if (!sRoot.EndsWith(@"\")) sRoot += @"\";
+
+            if (sFolder != null && sFolder.Length > 0)
+            {
+                if (sFolder.StartsWith("Root"))
+                    sFolder = (sRoot + sFolder.Substring(5, sFolder.Length - 5)).Replace('/', '\\');
+            }
+            return sFolder;
+        }
         /********************************************************************/
         private bool checkexistFile(string sf)
         {
