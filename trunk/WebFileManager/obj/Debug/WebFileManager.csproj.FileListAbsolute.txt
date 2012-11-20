@@ -34,3 +34,4 @@ E:\Project\new new new\mvt-web-file-manager\WebFileManager\obj\Debug\ResolveAsse
 E:\Project\new new new\mvt-web-file-manager\WebFileManager\obj\Debug\WebFileManager.dll.licenses
 E:\Project\new new new\mvt-web-file-manager\WebFileManager\obj\Debug\WebFileManager.dll
 E:\Project\new new new\mvt-web-file-manager\WebFileManager\obj\Debug\WebFileManager.pdb
+D:\Project\mvt-web-file-manager\WebFileManager\bin\Ionic.Zip.dll

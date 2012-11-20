@@ -4,323 +4,20 @@
     <title>Home Page</title>
     <link href="Styles/Site.css" rel="stylesheet" type="text/css" />
     <link href="Styles/Styles.css" rel="stylesheet" type="text/css" />
-    <script src="/Scripts/jquery-1.8.2.min.js" type="text/javascript"></script>
     <link href="Styles/popup.css" rel="stylesheet" type="text/css" />
     <link href="Styles/jquery-ui-1.9.1.custom.min.css" rel="stylesheet" type="text/css" />
     <link href="Styles/jquery.treeview.css" rel="stylesheet" type="text/css" />
     <link href="uploadify/uploadify.css" rel="stylesheet" type="text/css" />
     <link href="Styles/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
+
+    <script src="/Scripts/jquery-1.8.2.min.js" type="text/javascript"></script>
     <script src="Scripts/popup.js" type="text/javascript"></script>
     <script src="Scripts/jquery-ui-1.9.1.custom.min.js" type="text/javascript"></script>
     <script src="Scripts/jquery.treeview.js" type="text/javascript"></script>
     <script src="uploadify/jquery.uploadify.min.js" type="text/javascript"></script>
     <script src="Scripts/jquery.contextMenu.js" type="text/javascript"></script>
-    <style>
-        .chan
-        {
-            background-color: #AAAAAA;
-        }
-        .le
-        {
-            background-color: #ffffff;
-        }
-        .select
-        {
-            background-color: khaki;
-        }
-        .over
-        {
-            background: #DDDDDD;
-        }
-        .center
-        {
-            text-align: center;
-            margin: 0 auto;
-            margin-left: auto;
-            margin-right: auto;
-            width: 960px;
-        }
-        .buttonzz
-        {
-            font-weight: bold;
-            color: #FEF4E9;
-            border: solid 1px #DA7C0C;
-            background: #F78D1D;
-            background: -webkit-gradient(linear, left top, left bottom, from(#FAA51A), to(#F47A20));
-            background: -moz-linear-gradient(top, #FAA51A, #F47A20);
-            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#faa51a', endColorstr='#f47a20');
-            display: inline-block;
-            outline: none;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            font: 12px/100% Arial, Helvetica, sans-serif;
-            padding: .5em 2em .55em;
-            text-shadow: 0 1px 1px rgba(0, 0, 0, .3);
-            -webkit-border-radius: .5em;
-            -moz-border-radius: .5em;
-            border-radius: .5em;
-            -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
-            -moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
-        }
-        .folder
-        {
-            clear: both;
-            font-weight: bold;
-            color: #01ABFA;
-            border: 1px solid #FBCB09;
-            background: #FDF5CE;
-            display: inline-block;
-            outline: none;
-            text-align: left;
-            text-decoration: none;
-            margin: 15px 0;
-            padding: 6px 4px;
-            text-shadow: 0 1px 1px rgba(0, 0, 0, .3);
-            -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
-            -moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
-            width: 99%;
-        }        
-    </style>
-    <script language="javascript" type="text/javascript">
-        var objList;// = new Array();
-        function genLink() {
-            var sLink = $('#HD_CurrentFolder').val();
-            $('#curentFolder').text(sLink);
-
-            var k = sLink.lastIndexOf('/');
-            if (sLink == 'Root') {
-                $('#upfd').css('display', 'none');
-            }
-            else {
-                $('#upfd').css('display', 'block');
-            }
-            if (k >= 0) sLink = sLink.substring(0, k);
-
-            $('#upfd li >a').attr("onclick", "GetList(\'" + sLink + "\')");
-        }
-        function GetList(fd) {
-            var url = "/ajax/command.ashx?cmd=getlist&fd=" + fd;
-            $.getJSON(url + "&format=json&jsoncallback=?",
-                function (result) {
-                    $('#ListItem').html('loading...');
-                    if (fd == '') {
-                        $('#HD_CurrentFolder').val('Root');
-                    }
-                    else {
-                        $('#HD_CurrentFolder').val(fd);
-                    }
-                    genLink();
-                    if (result != null && result.error != null) {
-                        alert(result.error);
-                    }
-                    else {
-                        if (result != null && result.length > 0) {
-                            objList = result;
-                            var sHtml = '';
-                            $.each(result, function (i, val) {
-
-                                //objList[val.id] = new Array(val);
-
-                                if (val.type == "folder") {
-                                    sHtml += '<ul class="listfolder" id="' + val.id + '">';
-                                }
-                                else {
-                                    sHtml += '<ul class="itemfile" id="' + val.id + '">';
-                                }
-                                sHtml += '<li class="TitleSelect"><input type="checkbox" id="selected_' + i + '" /></li>';
-                                if (val.type == "folder") {
-                                    sHtml += '<li class="name"><a href="javascript:void(0);" onclick="GetList(\'' + val.path + '\')">' + val.name + '</a></li>';
-                                }
-                                else {
-                                    sHtml += '<li class="name">' + val.name + '</li>';
-                                }
-                                sHtml += '<li class="size">' + val.length + '</li>';
-                                sHtml += '<li class="create">' + ShowFormatDate(val.DateCreate) + '</li>';
-                                sHtml += '<li class="modify">' + ShowFormatDate(val.DateEdit) + '</li>';
-                                sHtml += '<li class="TitleActive">';
-                                if (val.type == "folder") {
-                                    sHtml += '<img src="images/icon/zipIcon.png" title="zip folder" />';
-                                    sHtml += '<img src="images/icon/folder_rename.png" title="rename" />';
-                                    sHtml += '<img src="images/icon/folder_move.png" title="move folder to other folder" />';
-                                    sHtml += '<img src="images/icon/folder_download.png" title="zip and download folder" />';
-                                    sHtml += '<img src="images/icon/folder_option.png" title="option" />';
-                                    sHtml += '<img src="images/icon/folder_delete.png" title="delete forder" />';
-                                }
-                                else {
-                                    sHtml += '<img src="images/icon/file_rename.png" title="rename" />';
-                                    sHtml += '<img src="images/icon/file-move.png" title="move" />';
-                                    sHtml += '<img src="images/icon/file_edit.png" title="edit text" />';
-                                    sHtml += '<img src="images/icon/file_download.png" title="download file" />';
-                                    sHtml += '<img src="images/icon/file_delete.png" title="delete file" />';
-                                }
-                                sHtml += '</li>';
-                                sHtml += '</ul>';
-                            });
-                            $('#ListItem').html(sHtml);
-                        }
-                        else {
-                            $('#ListItem').html('no item');
-                        }
-                    }
-                });
-        }
-
-        function ShowFormatDateTime(oDate) {
-            if (oDate == null) return "";
-            return oDate.getHours() + ':' +
-                oDate.getMinutes() + ':' +
-                    oDate.getSeconds() + ' ' +
-                        oDate.getDate() + '/' +
-                            (oDate.getMonth() + 1) + '/' +
-                                oDate.getFullYear();
-        }
-
-        function ShowFormatDate(oDate) {
-            if (oDate == null) return "";
-            return oDate.getDate() + '/' +
-                (oDate.getMonth() + 1) + '/' +
-                    oDate.getFullYear();
-        }
-
-        $(document).ready(function () {
-            GetList('');
-            //$('tr:Odd').addClass('chan');
-            //$('tr:Even').addClass('le');
-
-            //            $("tr").mouseenter(function () {
-            //                if (this.find('td:eq(0)').find('input[type=checkbox]').is(':checked')) {
-            //                    //chawngr lamf j
-            //                }
-            //                else {
-            //                    this.addClass('over');
-            //                }
-            //            }).mouseleave(function () {
-            //                if (bool) {
-            //                    $(this).removeClass("over");
-            //                }
-            //            });
-
-            //            $("tr td input[type=checkbox]").change(function () {
-            //                if ($(this).is(':checked')) {
-            //                    $(this).parent("td").parent("tr").addClass("select");
-            //                } else {
-            //                    $(this).parent("td").parent("tr").removeClass("select");
-            //                }
-            //            });
-
-            //            $('td').filter(function () {
-            //                //return (this.text().lastIndexOf('.m4a')>0);
-            //                alert(this.text());
-            //            }).addClass('m4a');
-            //$('tr').find('td:eq(1)').addClass('m4a');
-
-            //////////////////////
-
-            $('.popup-button').showPopup({
-                top: 200, //khoảng cách popup cách so với phía trên
-                closeButton: ".close_popup, .bt_cancel", //khai báo nút close cho popup
-                scroll: false, //cho phép scroll khi mở popup, mặc định là không cho phép
-                //outClose: false, //click ra ngoài là close
-                onClose: function () {
-                    //sự kiện cho phép gọi sau khi đóng popup, cho phép chúng ta gọi 1 số sự kiện khi đóng popup, bạn có thể để null ở đây
-                }
-            });
-
-            $('.popup-button').click(function () { return false; });
-
-            function SetUpdate(sFile) {
-                $('#MainContent_HD_File').val(sFile);
-                return false;
-            }
-
-            function SetDelete(sFile) {
-                $('#MainContent_HD_File').val(sFile);
-                $('#fileDelete').text(sFile);
-                alert(sFile);
-                alert($('#MainContent_HD_File').val());
-                return false;
-            }
-
-            function SetMove(sFile) {
-                $('#MainContent_HD_File').val(sFile);
-                return false;
-            }
-
-            $('.popup').draggable({ handle: ".popup-header" });
-
-            $(".button").button();
-
-            $('#BT_Call_Move').click(function () {
-                $('#txtFolderMove').val('');
-                $.ajax({
-                    url: '/ajax/command.ashx?cmd=treeview',
-                    success: function (data) {
-                        $('#treeview').html(data);
-                        BuildTreeview();
-                    }
-                });
-            });
-            //$('#curentFolder').
-        });
-
-        function BuildTreeview() {
-            $("#treeview").treeview({
-                animated: "fast",
-                collapsed: true,
-                unique: true,
-                //persist: "cookie",
-                toggle: function () {
-                    window.console && console.log("%o was toggled", this);
-                }
-            });
-
-            $('#treeview').find("span").click(function () {
-                $('#txtFolderMove').val($(this).attr('title'));
-            });
-
-            $('#treeview').find("span").attr('style', "cursor:pointer;cursor: hand").addClass("folders");
-        }
-
-        $(function () {
-            $.contextMenu({
-                selector: '#ListItem .listfolder .name',
-                callback: function (key, options) {
-                    var id = $(this).parent().attr('id');
-                    if (key == "Open") {
-                        for (var i = 0; i < objList.length; i++) {
-                            if (objList[i].id == id) {
-                                GetList(objList[i].path);
-                            }
-                        }
-                    }
-
-                    if (key == "Move") {
-                        
-                    }
-                },
-                items: {
-                    "Open": { name: "Open", icon: "Open" },
-                    "Zip": { name: "Zip", icon: "Zip" },
-                    "Rename": { name: "Rename", icon: "RenameFolder" },
-                    "Move": { name: "Move", icon: "MoveFolder" },
-                    "Delete": { name: "Delete", icon: "DeleteFolder" },
-                    "Download": { name: "Download", icon: "DownloadFolder" },
-                    "line": "---------",
-                    "Setting": { name: "Setting", icon: "SettingFolder" }
-                }
-            });
-
-            $('#ListItem .listfolder .name').on('click', function (e) {
-                alert($(this).parent().attr('id'));
-            });
-        });
-    </script>
 </head>
 <body>
-    <form method="post">
     <div class="page">
         <div class="header">
             <div class="title">
@@ -333,13 +30,13 @@
         </div>
         <div class="main">
             <div>
-                <input type="button" name="" value="Delete" id="MainContent_Button1" class="button" />
-                <input type="button" name="" value="New folder" id="MainContent_Button6" class="button" />
-                <input type="button" name="" value="Move" id="BT_Call_Move" class="button popup-button" href="#popup-move" />
+                <input type="button" name="" disabled="disabled" value="Delete" id="BT_Call_Delete" class="button" />
+                <input type="button" name="" value="New folder" id="MainContent_Button6" class="button popup-button" href="#popup_RenameNewFolder" />
+                <input type="button" name="" value="Move" disabled="disabled" id="BT_Call_Move" class="button popup-button" href="#popup-move" />
                 <input type="button" name="" value="Upload" id="BT_call_Upload" class="button popup-button" onclick="BuildUpload();"
                     href="#popup_Upload" />
-                <input type="button" name="" value="UnZip" id="MainContent_Button4" class="button" />
-                <input type="button" name="" value="Download" id="MainContent_Button5" class="button" />
+                <input type="button" name="" disabled="disabled" value="UnZip" id="MainContent_Button4" class="button" />
+                <input type="button" name="" disabled="disabled" value="Download" id="MainContent_Button5" class="button" />
             </div>
             <div class="folder" id="curentFolder">
                 &nbsp;
@@ -357,7 +54,7 @@
                 </ul>
                 <ul class="listitem" id="upfd" style="display: none;">
                     <li class="upFolder"><a href="javascript:void(0);">
-                        <img src="images/icon/upLevel.gif" />
+                        <img src="/images/icon/upLevel.gif" />
                         Up...</a></li>
                 </ul>
                 <div id="ListItem" class="listitem">
@@ -367,7 +64,7 @@
             <div id="popup_confirm" class="popup">
                 <div class="popup-header">
                     <h2>
-                        Confirm delete file</h2>
+                        Confirm delete</h2>
                     <p id="fileDelete">
                         (file name)</p>
                 </div>
@@ -385,20 +82,39 @@
                     <a class="close_popup" href="javascript:void(0)"></a>
                 </div>
                 <div class="info_popup">
-                    <input type="text" id="txtFileName" />
+                    <input type="text" id="txtFileName" style="width:320px" /><span id="Extension"></span>
+                </div>
+                <div style="padding-top: 10px; text-align: center">
+                    <span id="txtStatusRename" style="width: 380px;"></span>
                 </div>
                 <div style="text-align: center; padding-bottom: 10px;">
-                    <input type="button" name="ctl00$MainContent$BT_Sublmit" value="Submit" id="MainContent_BT_Sublmit"
+                    <input type="button" name="" value="Rename" id="BT_Rename"
+                           class="button" />
+                    <input type="button" value="Cancel"
+                           id="BT_Cancel_Rename" class="bt_cancel button" />
+                </div>
+            </div>
+            <div id="popup_RenameNewFolder" class="popup">
+                <div class="popup-header">
+                    <h2>
+                        New Folder</h2>
+                    <a class="close_popup" href="javascript:void(0)"></a>
+                </div>
+                <div class="info_popup">
+                    <input type="text" id="txtNewFolder" />
+                </div>
+                <div style="text-align: center; padding-bottom: 10px;">
+                    <input type="button" name="" value="Create" id="BT_NewFolder"
                         class="button" />
-                    <input type="button" name="ctl00$MainContent$BT_Cancel" value="Cancel" onclick="javascript:return false;"
-                        id="MainContent_BT_Cancel" class="bt_cancel button" />
+                    <input type="button" name="" value="Cancel"
+                        id="BT_Cancel_NewFolder" class="bt_cancel button" />
                 </div>
             </div>
             <div id="popup-move" class="popup">
                 <div class="popup-header">
                     <h2>
                         Move file</h2>
-                    <p>
+                    <p id="fileMove">
                         (file name)</p>
                     <p>
                         select folder</p>
@@ -441,41 +157,16 @@
         </div>
         <div class="clear">
         </div>
+        <div style="display: none;">
+            <input type="button" id="BT_Show_Move" class="popup-button" href="#popup-move" />
+        </div>
     </div>
     <div class="footer">
         chán chết chẳng có cái j
     </div>
     <input type="hidden" value="" id="HD_CurrentFolder" />
-    </form>
-    <script>
-
-        function BuildUpload() {
-            $("#file_upload").uploadify({
-                'swf': '/uploadify/uploadify.swf',
-                'uploader': '/ajax/command.ashx?cmd=upload',
-                'formData': {'fd': $('#HD_CurrentFolder').val(),'vkl':'vcc' },
-                'auto': false,
-                'buttonText': 'BROWSE...',
-                'queueID': 'some_file_queue',
-                'onUploadStart': function (file) {
-                    $('#StatusUpload').text('Starting to upload ' + file.name);
-                },
-                'onUploadSuccess': function (file, data, response) {
-                    $('#StatusUpload').text('The file ' + file.name + ' was successfully uploaded with a response of ' + response + ':' + data);
-                },
-                'onQueueComplete': function () {
-                    $('#StatusUpload').text('Upload successfully');
-                }
-            });
-            $('#StatusUpload').text('Select file for upload');
-        }
-
-        function destroyUpload() {
-            $('#file_upload').uploadify('destroy');
-            $('#some_file_queue').html('');
-            $('#StatusUpload').text('');
-        }
-
-    </script>
+    <input type="hidden" value="" id="HD_ID" />
+    <input type="hidden" value="" id="HD_ListID" />
+    <script src="Scripts/site.js" type="text/javascript"></script>
 </body>
 </html>
