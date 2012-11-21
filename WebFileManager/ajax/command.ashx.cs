@@ -78,6 +78,9 @@ namespace WebFileManager.ajax
                 case "download":
                     DownloadFile(context);
                     break;
+                case "newFolder":
+                    createFolder(context);
+                    break;
             }
         }
 
@@ -307,6 +310,21 @@ namespace WebFileManager.ajax
             }
             return sFolder;
         }
+
+        public static string getFullPath(string sname, HttpContext context)
+        {
+            string sRoot = System.Configuration.ConfigurationManager.AppSettings["RootFolder"];
+            if (sRoot.IndexOf(@":\") < 0) sRoot = context.Server.MapPath(sRoot);
+            if (!sRoot.EndsWith(@"\")) sRoot += @"\";
+
+            if (sname != null && sname.Length > 0)
+            {
+                if (sname.StartsWith("Root"))
+                    sname = (sRoot + sname.Substring(5, sname.Length - 5)).Replace('/', '\\');
+            }
+            return sname;
+        }
+
         /********************************************************************/
         private bool checkexistFile(string sf)
         {
@@ -317,9 +335,46 @@ namespace WebFileManager.ajax
             return false;
         }
 
-        private bool createFolder(string sf)
+        private void createFolder(HttpContext context)
         {
-            return false;
+            context.Response.ContentType = "application/json";
+            FileInfo oItem = new FileInfo();
+
+            try
+            {
+                string sName = context.Request.QueryString["newname"];
+                string sFolder = context.Request.QueryString["fd"];
+                sFolder = getFullPath(sFolder, context);
+
+                if (!Directory.Exists(sFolder))
+                {
+                    oItem.error = "current folder not exist";
+                }
+                else
+                {
+                    sName = sFolder + @"\" + sName;
+                    if (Directory.Exists(sName))
+                    {
+                        oItem.error = "canot create folder because exist";
+                    }
+                    else
+                    {
+                        System.IO.Directory.CreateDirectory(sName);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                oItem.error = ex.Message;
+                throw new ApplicationException(ex.Message);
+            }
+            finally
+            {
+                string sContent = Newtonsoft.Json.JsonConvert.SerializeObject(oItem, new JavaScriptDateTimeConverter());
+                context.Response.Clear();
+                context.Response.Write(context.Request["jsoncallback"] + "(" + sContent + ")");
+                context.Response.End();
+            }
         }
 
         private void uploads(HttpContext context)

@@ -72,7 +72,7 @@
 }
 #MainGrid .listitem li.name{
     width: 411px;
-    background: url('/images/icon/file.png') left no-repeat;/*icon default*/
+    background: url('/images/icon/file.png') 2px center no-repeat transparent;/*icon default*/
 }
 
 #MainGrid .listitem li.size{
@@ -84,13 +84,13 @@
 #MainGrid .listitem li.create{
     width: 72px;
     padding-left: 20px;
-    background: url('/images/icon/date-icon.png') left no-repeat;
+    background: url('/images/icon/date-icon.png') 2px center no-repeat transparent;
 }
 
 #MainGrid .listitem li.modify{
     width: 72px;
     padding-left: 20px;
-    background: url('/images/icon/date-icon.png') left no-repeat;
+    background: url('/images/icon/date-icon.png') 2px center no-repeat transparent;
 }
 
 #MainGrid .listitem li.TitleActive{
@@ -107,7 +107,7 @@
 /*folder*/
 #MainGrid .listitem .listfolder .name {
     padding-left: 20px;
-    background: url('/images/icon/folder-icon.png') left no-repeat;
+    background: url('/images/icon/folder-icon.png') 2px center no-repeat transparent;
     /*width: 512px;*/
 }
 
@@ -117,11 +117,11 @@
 }
 
 #MainGrid .listitem .itemfile li.size{
-    background: url('/images/icon/capacity.png') left no-repeat;
+    background: url('/images/icon/capacity.png') 2px center no-repeat transparent;
 }
 /*file type*/
 #MainGrid .listitem .itemfile .name .mp3 {
-    background: url('/images/icon/folder-icon.png') left no-repeat;
+    background: url('/images/icon/folder-icon.png') 2px center no-repeat transparent;
 }
 
 /**/
