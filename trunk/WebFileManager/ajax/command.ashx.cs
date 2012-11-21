@@ -163,29 +163,62 @@ namespace WebFileManager.ajax
             {
                 string sOld =IdToFile(context.Request["id"],context);
                 string sNew = context.Request["newname"];
+                
                 bool isFile = (context.Request["isFile"] == "true");
                 //string stype = context.Request["type"];
                 if(isFile)
                 {
-                    File.Move(sOld,Path.GetDirectoryName(sOld) + "\\" + sNew + Path.GetExtension(sOld));
+                    sNew = Path.GetDirectoryName(sOld) + "\\" + sNew + Path.GetExtension(sOld);
+                    if(!File.Exists(sOld))
+                    {
+                        oItem.error = "file not exist";
+                    }
+                    else
+                    {
+                        if(sOld==sNew) return;
+                        if(File.Exists(sNew))
+                        {
+                            oItem.error = "canot rename file because exist";
+                        }
+                        else
+                        {
+                            File.Move(sOld,sNew);
+                        }
+                    }
                 }
                 else
                 {
-                    System.IO.Directory.Move(sOld,sNew);
+                    sOld=Path.GetDirectoryName(sOld) + "\\" + sNew;
+                    if(!Directory.Exists(sOld))
+                    {
+                        oItem.error = "folder not exist";
+                    }
+                    else
+                    {
+                        if (sOld == sNew) return;
+                        if (Directory.Exists(sNew))
+                        {
+                            oItem.error = "canot rename folder because exist";
+                        }
+                        else
+                        {
+                            System.IO.Directory.Move(sOld, Path.GetDirectoryName(sOld) + "\\" + sNew);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
                 oItem.error = ex.Message;
-                throw;
+                throw new ApplicationException(ex.Message);
             }
             finally
             {
                 string sContent = Newtonsoft.Json.JsonConvert.SerializeObject(oItem, new JavaScriptDateTimeConverter());
+                context.Response.Clear();
                 context.Response.Write(context.Request["jsoncallback"] + "(" + sContent + ")");
+                context.Response.End();
             }
-
-            
         }
 
         private void delete(HttpContext context)
