@@ -35,3 +35,4 @@ E:\Project\new new new\mvt-web-file-manager\WebFileManager\obj\Debug\WebFileMana
 E:\Project\new new new\mvt-web-file-manager\WebFileManager\obj\Debug\WebFileManager.dll
 E:\Project\new new new\mvt-web-file-manager\WebFileManager\obj\Debug\WebFileManager.pdb
 D:\Project\mvt-web-file-manager\WebFileManager\bin\Ionic.Zip.dll
+E:\Project\new new new\mvt-web-file-manager\WebFileManager\bin\Ionic.Zip.dll

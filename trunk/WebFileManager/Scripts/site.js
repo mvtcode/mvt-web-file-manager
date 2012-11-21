@@ -1,8 +1,11 @@
-﻿var objList; // = new Array();
+﻿var objList;
+var CurrentFolder;
+var CurrentId;
+var ListID;
 function genLink() {
-    var sLink = $('#HD_CurrentFolder').val();
+    var sLink = CurrentFolder;
     $('#curentFolder').text(sLink);
-
+    document.title = sLink + ' - .NET File managerment';
     var k = sLink.lastIndexOf('/');
     if (sLink == 'Root') {
         $('#upfd').css('display', 'none');
@@ -20,10 +23,10 @@ function GetList(fd) {
     function (result) {
         $('#ListItem').html('loading...');
         if (fd == '') {
-            $('#HD_CurrentFolder').val('Root');
+            CurrentFolder = 'Root';
         }
         else {
-            $('#HD_CurrentFolder').val(fd);
+            CurrentFolder = fd;
         }
         genLink();
         if (result != null && result.error != null) {
@@ -56,25 +59,6 @@ function biuldGrid(olist) {
             sHtml += '<li class="size">' + val.length + '</li>';
             sHtml += '<li class="create">' + ShowFormatDate(val.DateCreate) + '</li>';
             sHtml += '<li class="modify">' + ShowFormatDate(val.DateEdit) + '</li>';
-            /**/
-            sHtml += '<li class="TitleActive">';
-            if (val.type == "folder") {
-                sHtml += '<img src="/images/icon/zipIcon.png" title="zip folder" />';
-                sHtml += '<img src="/images/icon/folder_rename.png" title="rename" />';
-                sHtml += '<img src="/images/icon/folder_move.png" title="move folder to other folder" />';
-                sHtml += '<img src="/images/icon/folder_download.png" title="zip and download folder" />';
-                sHtml += '<img src="/images/icon/folder_option.png" title="option" />';
-                sHtml += '<img src="/images/icon/folder_delete.png" title="delete forder" />';
-            }
-            else {
-                sHtml += '<img src="/images/icon/file_rename.png" title="rename" />';
-                sHtml += '<img src="/images/icon/file-move.png" title="move" />';
-                sHtml += '<img src="/images/icon/file_edit.png" title="edit text" />';
-                sHtml += '<img src="/images/icon/file_download.png" title="download file" />';
-                sHtml += '<img src="/images/icon/file_delete.png" title="delete file" />';
-            }
-            sHtml += '</li>';
-            /**/
             sHtml += '</ul>';
         });
         $('#ListItem').html(sHtml);
@@ -117,14 +101,14 @@ $(function () {
             "Delete": { name: "Delete", icon: "DeleteFolder", cssover: "popup-button", href: "#popup_confirm" },
             //"Download": { name: "Download", icon: "DownloadFolder" },
             "line": "---------",
-            "Setting": { name: "Setting", icon: "SettingFolder" }
+            "Property": { name: "Setting", icon: "SettingFolder" }
         }
     });
 });
 
 function EventContextFolder(KeyEvent, id) {
     var obj = getItemList(id);
-    $('#HD_ID').val(id);
+    CurrentId = id;
     switch (KeyEvent) {
         case "Open":
             ctFolderOpen(obj);
@@ -144,7 +128,7 @@ function EventContextFolder(KeyEvent, id) {
         //        case "Download": 
         //            ctFolderDownload(obj); 
         //            break; 
-        case "Setting":
+        case "Property":
             ctFolderSetting(obj);
             break;
         default:
@@ -208,7 +192,7 @@ $(function () {
 
 function EventContextFile(KeyEvent, id) {
     var obj = getItemList(id);
-    $('#HD_ID').val(id);
+    CurrentId = id;
     switch (KeyEvent) {
         case "Rename":
             ctFileRename(obj);
@@ -252,16 +236,20 @@ function getListCheck() {
             }
         }
     });
-    if (sList != '')
-    //$('#BT_Call_Delete #BT_Call_Move').button("disable");
+    if (sList != '') {
+        $('#BT_Call_Move').button("enable");
         $('#BT_Call_Delete').button("enable");
+    }
     else {
+        $('#BT_Call_Move').button("disable");
         $('#BT_Call_Delete').button("disable");
     }
-    $('#HD_ListID').val(sList);
+    ListID = sList;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 $(document).ready(function () {
+    $('.popup').draggable({ handle: ".popup-header" });
+    $(".button").button();
     GetList('');
     //$('tr:Odd').addClass('chan');
     //$('tr:Even').addClass('le');
@@ -297,15 +285,12 @@ $(document).ready(function () {
 
     $('#BT_Show_Move').click(function () {
         $('#txtFolderMove').val('');
-        //if ($('#treeview').html() == 0) {
-        $.ajax({
-            url: '/ajax/command.ashx?cmd=treeview',
-            success: function (data) {
-                $('#treeview').html(data);
-                BuildTreeview();
-            }
-        });
-        //}
+        if ($('#treeview').html() == '') {
+            loadTreeview();
+        }
+        else {
+            BuildTreeview();
+        }
     });
 
     $('.popup-button').showPopup({
@@ -314,15 +299,21 @@ $(document).ready(function () {
         scroll: false, //cho phép scroll khi mở popup, mặc định là không cho phép
         //outClose: false, //click ra ngoài là close
         onClose: function () {
-            $('#HD_ID').val('');
+            CurrentId = ''; //'$('#HD_ID').val('');
         }
     });
-
-    $('.popup').draggable({ handle: ".popup-header" });
-
-    $(".button").button();
 });
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function loadTreeview() {
+    $.ajax({
+        url: '/ajax/command.ashx?cmd=treeview',
+        success: function (data) {
+            $('#treeview').html(data);
+            BuildTreeview();
+        }
+    });
+}
 function BuildTreeview() {
     $("#treeview").treeview({
         animated: "fast",
@@ -345,7 +336,7 @@ function BuildUpload() {
     $("#file_upload").uploadify({
         'swf': '/uploadify/uploadify.swf',
         'uploader': '/ajax/command.ashx?cmd=upload',
-        'formData': { 'fd': $('#HD_CurrentFolder').val(), 'vkl': 'vcc' },
+        'formData': { 'fd': CurrentFolder, 'vkl': 'vcc' },
         'auto': false,
         'buttonText': 'BROWSE...',
         'queueID': 'some_file_queue',
@@ -371,13 +362,13 @@ function destroyUpload() {
 ///////////////////rename//////////////////////
 $(document).ready(function () {
     $('#BT_Rename').click(function () {
-        var oInfo = getItemList($('#HD_ID').val());
+        var oInfo = getItemList(CurrentId);
         if ($('#txtFileName').val() == getOnlynameFile(oInfo.name)) {
             $('#BT_Cancel_Rename').click();
             return;
         }
         $('#txtStatusRename').text('processing...');
-        $.getJSON('/ajax/command.ashx?cmd=rename&id=' + $('#HD_ID').val() + '&newname=' + $('#txtFileName').val()
+        $.getJSON('/ajax/command.ashx?cmd=rename&id=' + CurrentId + '&newname=' + $('#txtFileName').val()
                     + '&type=' + oInfo.type + '&isFile=' + oInfo.isFile + '&format=json&jsoncallback=?',
             function (data) {
                 if (data != null) {
@@ -387,7 +378,7 @@ $(document).ready(function () {
                     }
                     else {
                         $('#txtStatusRename').text('rename ok!');
-                        GetList($('#HD_CurrentFolder').val());
+                        GetList(CurrentFolder);
                         setTimeout(function () {
                             $('#BT_Cancel_Rename').click();
                         }, 1000);
@@ -400,8 +391,49 @@ $(document).ready(function () {
         );
     });
 });
+
+///////////////////new folder//////////////////////
+$(document).ready(function () {
+    $('#BT_NewFolder').click(function () {
+        var sNew = $('#txtNewFolder').val();
+        if (!validateFolderName(sNew)) {
+            $('#lbStatusNewFolder').text('validate name');
+            return;
+        }
+        else {
+            $('#lbStatusNewFolder').text('processing...');
+            $.getJSON('/ajax/command.ashx?cmd=newFolder&fd=' + CurrentFolder + '&newname=' + sNew + '&format=json&jsoncallback=?',
+            function (data) {
+                if (data != null) {
+                    if (data.error != null) {
+                        $('#lbStatusNewFolder').text(data.error);
+                        return;
+                    }
+                    else {
+                        $('#lbStatusNewFolder').text('create ok!');
+                        GetList(CurrentFolder);
+                        loadTreeview();
+                        setTimeout(function () {
+                            $('#BT_Cancel_NewFolder').click();
+                        }, 1000);
+                    }
+                }
+                else {
+                    $('#lbStatusNewFolder').text('Not connection!');
+                }
+            }
+        );
+        }
+    });
+});
+
+function validateFolderName(sname) {
+    var regex = new RegExp("^[a-z]+$", "gi");
+    return regex.test(sname);
+}
+    
 ///////////////////delete//////////////////////
 
 ///////////////////move//////////////////////
 
-///////////////////setting//////////////////////
+///////////////////property//////////////////////
