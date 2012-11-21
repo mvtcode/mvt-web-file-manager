@@ -159,6 +159,7 @@ function ctFolderOpen(obj) {
 //}
 function ctFolderRename(obj) {
     $('#Extension').text('');
+    $('#txtStatusRename').text('');
     $('#txtFileName').val(obj.name);
 }
 function ctMove(obj) {
@@ -227,6 +228,7 @@ function EventContextFile(KeyEvent, id) {
 
 function ctFileRename(obj) {
     $('#Extension').text('.' + obj.type);
+    $('#txtStatusRename').text('');
     $('#txtFileName').val(getOnlynameFile(obj.name));
 }
 function ctFileDownload(obj) {
@@ -370,17 +372,25 @@ function destroyUpload() {
 $(document).ready(function () {
     $('#BT_Rename').click(function () {
         var oInfo = getItemList($('#HD_ID').val());
+        if ($('#txtFileName').val() == getOnlynameFile(oInfo.name)) {
+            $('#BT_Cancel_Rename').click();
+            return;
+        }
         $('#txtStatusRename').text('processing...');
         $.getJSON('/ajax/command.ashx?cmd=rename&id=' + $('#HD_ID').val() + '&newname=' + $('#txtFileName').val()
                     + '&type=' + oInfo.type + '&isFile=' + oInfo.isFile + '&format=json&jsoncallback=?',
             function (data) {
                 if (data != null) {
-                    if (data.error !=null) {
+                    if (data.error != null) {
                         $('#txtStatusRename').text(data.error);
                         return;
                     }
                     else {
                         $('#txtStatusRename').text('rename ok!');
+                        GetList($('#HD_CurrentFolder').val());
+                        setTimeout(function () {
+                            $('#BT_Cancel_Rename').click();
+                        }, 1000);
                     }
                 }
                 else {
