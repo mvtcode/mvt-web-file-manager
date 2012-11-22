@@ -16,7 +16,6 @@ namespace WebFileManager.ajax
     /// </summary>
     public class command : IHttpHandler
     {
-
         public void ProcessRequest(HttpContext context)
         {
             //context.Response.ContentType = "text/plain";
@@ -44,9 +43,10 @@ namespace WebFileManager.ajax
                     rename(context);
                     break;
                 case "delete":
-
+                    delete(context);
                     break;
                 case "move":
+                    move(context);
                     break;
                 case "upload":
                     uploads(context);
@@ -164,35 +164,41 @@ namespace WebFileManager.ajax
             FileInfo oItem = new FileInfo();
             try
             {
-                string sOld =IdToFile(context.Request["id"],context);
+                string sOld = IdToFile(context.Request["id"], context);
                 string sNew = context.Request["newname"];
-                
                 bool isFile = (context.Request["isFile"] == "true");
+
+                if(!checkNameNotUse(sNew,isFile))
+                {
+                    oItem.error = isFile ? "canot use file name" : "canot use folder name";
+                    return;
+                }
+
                 //string stype = context.Request["type"];
-                if(isFile)
+                if (isFile)
                 {
                     sNew = Path.GetDirectoryName(sOld) + "\\" + sNew + Path.GetExtension(sOld);
-                    if(!File.Exists(sOld))
+                    if (!File.Exists(sOld))
                     {
                         oItem.error = "file not exist";
                     }
                     else
                     {
-                        if(sOld==sNew) return;
-                        if(File.Exists(sNew))
+                        if (sOld == sNew) return;
+                        if (File.Exists(sNew))
                         {
                             oItem.error = "canot rename file because exist";
                         }
                         else
                         {
-                            File.Move(sOld,sNew);
+                            File.Move(sOld, sNew);
                         }
                     }
                 }
                 else
                 {
-                    sOld=Path.GetDirectoryName(sOld) + "\\" + sNew;
-                    if(!Directory.Exists(sOld))
+                    sNew = Path.GetDirectoryName(sOld) + "\\" + sNew;
+                    if (!Directory.Exists(sOld))
                     {
                         oItem.error = "folder not exist";
                     }
@@ -205,7 +211,80 @@ namespace WebFileManager.ajax
                         }
                         else
                         {
-                            System.IO.Directory.Move(sOld, Path.GetDirectoryName(sOld) + "\\" + sNew);
+                            System.IO.Directory.Move(sOld, sNew);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                oItem.error = ex.Message;
+                throw new ApplicationException(ex.Message);
+            }
+            finally
+            {
+                string sContent = Newtonsoft.Json.JsonConvert.SerializeObject(oItem, new JavaScriptDateTimeConverter());
+                context.Response.Clear();
+                context.Response.Write(context.Request["jsoncallback"] + "(" + sContent + ")");
+                context.Response.End();
+            }
+        }
+
+        private void move(HttpContext context)
+        {
+            context.Response.ContentType = "application/json";
+            FileInfo oItem = new FileInfo();
+            try
+            {
+                string sName = IdToFile(context.Request["id"], context);
+                bool isFile = (context.Request["isFile"] == "true");
+                string sCurrentFolder = getFullPath(context.Request.QueryString["fd"], context);
+                string sNewFolder = getFullPath(context.Request.QueryString["nfd"], context);
+
+                if(sCurrentFolder==sNewFolder) return;
+
+                if (isFile)
+                {
+                    if (!File.Exists(sName))
+                    {
+                        oItem.error = "file not exist";
+                    }
+                    else
+                    {
+                        string newTarget = sNewFolder + "\\" + Path.GetFileName(sName);
+                        if (File.Exists(newTarget))
+                        {
+                            oItem.error = "file target already exist";
+                        }
+                        else
+                        {
+                            File.Move(sName, newTarget);
+                        }
+                    }
+                }
+                else
+                {
+                    if (!Directory.Exists(sName))
+                    {
+                        oItem.error = "folder not exist";
+                    }
+                    else
+                    {
+                        sNewFolder = sNewFolder + "\\" + Path.GetFileNameWithoutExtension(sName);
+                        if (Directory.Exists(sNewFolder))
+                        {
+                            oItem.error = "folder target already exist";
+                        }
+                        else
+                        {
+                            if(sNewFolder.StartsWith(sName))
+                            {
+                                oItem.error = "canot move to sub this folder";
+                            }
+                            else
+                            {
+                                System.IO.Directory.Move(sName, sNewFolder);
+                            }
                         }
                     }
                 }
@@ -226,7 +305,47 @@ namespace WebFileManager.ajax
 
         private void delete(HttpContext context)
         {
-            context.Response.Write("");
+            context.Response.ContentType = "application/json";
+            FileInfo oItem = new FileInfo();
+            try
+            {
+                string sName = IdToFile(context.Request["id"], context);
+                bool isFile = (context.Request["isFile"] == "true");
+                if (isFile)
+                {
+                    if (!File.Exists(sName))
+                    {
+                        oItem.error = "file not exist";
+                    }
+                    else
+                    {
+                        File.Delete(sName);
+                    }
+                }
+                else
+                {
+                    if (!Directory.Exists(sName))
+                    {
+                        oItem.error = "folder not exist";
+                    }
+                    else
+                    {
+                        System.IO.Directory.Delete(sName,true);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                oItem.error = ex.Message;
+                throw new ApplicationException(ex.Message);
+            }
+            finally
+            {
+                string sContent = Newtonsoft.Json.JsonConvert.SerializeObject(oItem, new JavaScriptDateTimeConverter());
+                context.Response.Clear();
+                context.Response.Write(context.Request["jsoncallback"] + "(" + sContent + ")");
+                context.Response.End();
+            }
         }
         //move
         //upload
@@ -248,7 +367,7 @@ namespace WebFileManager.ajax
                 {
                     if (arr.Length == 1)
                     {
-                        string sFile = IdToFile(arr[0],context);
+                        string sFile = IdToFile(arr[0], context);
                         if (!File.Exists(sFile))
                         {
                             context.Response.ContentType = "application/json";
@@ -265,6 +384,7 @@ namespace WebFileManager.ajax
                             context.Response.AddHeader("Content-Length", sz.ToString("F0"));
                             context.Response.TransmitFile(sFile);
                             context.Response.End();
+                            return;
                         }
 
                     }
@@ -319,18 +439,16 @@ namespace WebFileManager.ajax
 
             if (sname != null && sname.Length > 0)
             {
-                if (sname.StartsWith("Root"))
+                if (sname.StartsWith("Root/"))
                     sname = (sRoot + sname.Substring(5, sname.Length - 5)).Replace('/', '\\');
+                else if (sname.StartsWith("Root"))
+                    sname = (sRoot + sname.Substring(4, sname.Length - 4)).Replace('/', '\\');
             }
             return sname;
         }
 
         /********************************************************************/
-        private bool checkexistFile(string sf)
-        {
-            return false;
-        }
-        private bool checkexistFolder(string sf)
+        private bool checkexistFile(string sName, HttpContext context)
         {
             return false;
         }
@@ -346,13 +464,19 @@ namespace WebFileManager.ajax
                 string sFolder = context.Request.QueryString["fd"];
                 sFolder = getFullPath(sFolder, context);
 
+                if (!checkNameNotUse(sName,false))
+                {
+                    oItem.error = "canot use folder name";
+                    return;
+                }
+
                 if (!Directory.Exists(sFolder))
                 {
                     oItem.error = "current folder not exist";
                 }
                 else
                 {
-                    sName = sFolder + @"\" + sName;
+                    sName = sFolder.EndsWith("\\") ? sFolder + sName : sFolder + @"\" + sName;
                     if (Directory.Exists(sName))
                     {
                         oItem.error = "canot create folder because exist";
@@ -462,6 +586,23 @@ namespace WebFileManager.ajax
             string ServerRefeffer = "";
             if (context.Request.UrlReferrer != null) ServerRefeffer = context.Request.UrlReferrer.Authority;
             return (ServerLocal == ServerRefeffer);
+        }
+
+        private bool checkNameNotUse(string sName,bool isFile)
+        {
+            string[] notName = { "CON", "PRN", "NUL", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9" };
+
+            if(isFile)
+            {
+                sName = Path.GetFileNameWithoutExtension(sName);
+            }
+
+            foreach (string s in notName)
+            {
+                if (sName.ToUpper() == s)
+                    return false;
+            }
+            return true;
         }
 
         public bool IsReusable

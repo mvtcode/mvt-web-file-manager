@@ -30,13 +30,14 @@
         </div>
         <div class="main">
             <div>
+                <input type="button" name="" value="Refresh" id="BT_Call_Refresh" class="button" />
                 <input type="button" name="" disabled="disabled" value="Delete" id="BT_Call_Delete" class="button" />
-                <input type="button" name="" value="New folder" id="MainContent_Button6" class="button popup-button" href="#popup_RenameNewFolder" />
+                <input type="button" name="" value="New folder" id="BT_Call_NewFolder" class="button popup-button" href="#popup_RenameNewFolder" />
                 <input type="button" name="" value="Move" disabled="disabled" id="BT_Call_Move" class="button popup-button" href="#popup-move" />
                 <input type="button" name="" value="Upload" id="BT_call_Upload" class="button popup-button" onclick="BuildUpload();"
-                    href="#popup_Upload" />
-                <input type="button" name="" disabled="disabled" value="UnZip" id="MainContent_Button4" class="button" />
-                <input type="button" name="" disabled="disabled" value="Download" id="MainContent_Button5" class="button" />
+                       href="#popup_Upload" />
+                <input type="button" name="" disabled="disabled" value="UnZip" id="BT_Call_Zip" class="button" />
+                <input type="button" name="" disabled="disabled" value="Download" id="BT_Call_Download" class="button" />
             </div>
             <div class="folder" id="curentFolder">
                 &nbsp;
@@ -68,11 +69,14 @@
                     <p id="fileDelete">
                         (file name)</p>
                 </div>
+                <div style="padding-bottom: 10px; text-align: center">
+                    <span id="lbStatusDelete" style="width: 380px;"></span>
+                </div>
                 <div style="text-align: center; padding: 10px 0px;">
-                    <input type="button" name="ctl00$MainContent$BT_Delete" value="Delete" id="MainContent_BT_Delete"
+                    <input type="button" value="Delete" id="BT_Delete"
                         class="button" />
-                    <input type="button" name="ctl00$MainContent$BT_Confirm_Cancel" value="Cancel" onclick="javascript:return false;"
-                        id="MainContent_BT_Confirm_Cancel" class="bt_cancel button" />
+                    <input type="button" value="Cancel" onclick="javascript:return false;"
+                        id="BT_Delete_Cancel" class="bt_cancel button" />
                 </div>
             </div>
             <div id="popup_Rename" class="popup">
@@ -116,7 +120,7 @@
             <div id="popup-move" class="popup">
                 <div class="popup-header">
                     <h2>
-                        Move file</h2>
+                        Move file/folder</h2>
                     <p id="fileMove">
                         (file name)</p>
                     <p>
@@ -127,13 +131,16 @@
                     <ul id="treeview" class="filetree"></ul>
                 </div>
                 <div style="padding-top: 10px; text-align: center">
-                    <input type="text" id="txtFolderMove" style="width: 380px;" />
+                    <input type="text" id="txtFolderMove" style="width: 380px;" readonly="readonly" />
+                </div>
+                <div style="padding-bottom: 10px; text-align: center">
+                    <span id="lbStatusMove" style="width: 380px;"></span>
                 </div>
                 <div style="text-align: center; padding: 10px 0px;">
-                    <input type="button" name="BT_Move" value="Move" id="MainContent_BT_Move"
+                    <input type="button" name="BT_Move" value="Move" id="BT_Move"
                         class="button" />
                     <input type="button" name="BT_Move_Cancel" value="Cancel" onclick="javascript:return false;"
-                        id="MainContent_BT_Move_Cancel" class="bt_cancel button" />
+                        id="BT_Move_Cancel" class="bt_cancel button" />
                 </div>
             </div>
             <div id="popup_Upload" class="popup">
