@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Script.Serialization;
 using MVT.Core;
 using Newtonsoft.Json.Converters;
+using Ionic.Zip;
 
 namespace WebFileManager.ajax
 {
@@ -66,8 +67,8 @@ namespace WebFileManager.ajax
                 case "unzip":
 
                     break;
-                case "zip":
-
+                case "ZipFolder":
+                    ZipFolder(context);
                     break;
                 case "viewzip":
 
@@ -354,7 +355,63 @@ namespace WebFileManager.ajax
         //getproperty
         //setproperty
         //unzip
-        //zip
+
+        private void ZipFolder(HttpContext context)
+        {
+            context.Response.ContentType = "application/json";
+            FileInfo oItem = new FileInfo();
+            try
+            {
+                string sPath = IdToFile(context.Request["id"], context);
+                string sName = context.Request["newname"];
+                bool isFile = (context.Request["isFile"] == "true");
+
+                if(isFile)
+                {
+                    oItem.error = "you must select folder";
+                    return;
+                }
+
+                if (!checkNameNotUse(sName, false))
+                {
+                    oItem.error = "canot use file name" + sName;
+                    return;
+                }
+
+                string sFile = Path.GetDirectoryName(sPath) + "\\" + sName + ".zip";
+                if (!Directory.Exists(sPath))
+                {
+                    oItem.error = "folder not exist";
+                }
+                else
+                {
+                    if (File.Exists(sFile))
+                    {
+                        oItem.error = sName + ".zip exist";
+                    }
+                    else
+                    {
+                        using (ZipFile zip = new ZipFile())
+                        {
+                            zip.AddDirectory(sPath, Path.GetFileNameWithoutExtension(sPath));
+                            zip.Save(Path.GetDirectoryName(sPath) + "\\" + sName + ".zip");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                oItem.error = ex.Message;
+                throw new ApplicationException(ex.Message);
+            }
+            finally
+            {
+                string sContent = Newtonsoft.Json.JsonConvert.SerializeObject(oItem, new JavaScriptDateTimeConverter());
+                context.Response.Clear();
+                context.Response.Write(context.Request["jsoncallback"] + "(" + sContent + ")");
+                context.Response.End();
+            }
+        }
         //viewzip
 
         private void DownloadFile(HttpContext context)

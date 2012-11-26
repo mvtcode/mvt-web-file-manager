@@ -161,6 +161,7 @@
     </Compile>
     <Compile Include="ajax\EnCryptString.cs" />
     <Compile Include="ajax\FileInfo.cs" />
+    <Compile Include="ajax\UserInfo.cs" />
     <Compile Include="function\UntilityFunction.cs" />
     <Compile Include="function\Utility.cs" />
     <Compile Include="Global.asax.cs">

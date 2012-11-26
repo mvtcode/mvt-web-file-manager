@@ -36,7 +36,7 @@
                 <input type="button" name="" value="Move" disabled="disabled" id="BT_Call_Move" class="button popup-button" href="#popup-move" />
                 <input type="button" name="" value="Upload" id="BT_call_Upload" class="button popup-button" onclick="BuildUpload();"
                        href="#popup_Upload" />
-                <input type="button" name="" disabled="disabled" value="UnZip" id="BT_Call_Zip" class="button" />
+                <input type="button" name="" disabled="disabled" value="Zip" id="BT_Call_Zip" class="button" href="#popup_Zip"/>
                 <input type="button" name="" disabled="disabled" value="Download" id="BT_Call_Download" class="button" />
             </div>
             <div class="folder" id="curentFolder">
@@ -96,6 +96,27 @@
                            class="button" />
                     <input type="button" value="Cancel"
                            id="BT_Cancel_Rename" class="bt_cancel button" />
+                </div>
+            </div>
+            <div id="popup_Zip" class="popup">
+                <div class="popup-header">
+                    <h2>
+                        Zip file</h2>
+                    <p id="lbZipFolderName">
+                        (file name)</p>
+                    <a class="close_popup" href="javascript:void(0)"></a>
+                </div>
+                <div class="info_popup">
+                    <input type="text" id="txtZipName" style="width:320px" /><span>.zip</span>
+                </div>
+                <div style="padding-bottom: 10px; text-align: center">
+                    <span id="txtStatusZip" style="width: 380px;"></span>
+                </div>
+                <div style="text-align: center; padding-bottom: 10px;">
+                    <input type="button" name="" value="Zip" id="BT_Zip"
+                           class="button" />
+                    <input type="button" value="Cancel"
+                           id="BT_Zip_Cancel" class="bt_cancel button" />
                 </div>
             </div>
             <div id="popup_RenameNewFolder" class="popup">
