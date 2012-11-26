@@ -60,7 +60,7 @@ function biuldGrid(olist) {
                 sHtml += '<li class="name"><a href="javascript:void(0);" onclick="GetList(\'' + val.path + '\')">' + val.name + '</a></li>';
             }
             else {
-                sHtml += '<li class="name">' + val.name + '</li>';
+                sHtml += '<li class="name ' + val.type + '">' + val.name + '</li>';
             }
             sHtml += '<li class="size">' + val.length + '</li>';
             sHtml += '<li class="create">' + ShowFormatDate(val.DateCreate) + '</li>';
@@ -101,13 +101,13 @@ $(function () {
         },
         items: {
             "Open": { name: "Open", icon: "Open" },
-            //"Zip": { name: "Zip", icon: "Zip", cssover: "popup-button", href: "#popup_confirm" },
+            "Zip": { name: "Zip", icon: "Zip", cssover: "popup-button", href: "#popup_Zip" },
             "Rename": { name: "Rename", icon: "RenameFolder", cssover: "popup-button", href: "#popup_Rename" },
             "Move": { name: "Move", icon: "MoveFolder" },
             "Delete": { name: "Delete", icon: "DeleteFolder", cssover: "popup-button", href: "#popup_confirm" },
             //"Download": { name: "Download", icon: "DownloadFolder" },
             "line": "---------",
-            "Property": { name: "Setting", icon: "SettingFolder" }
+            "Property": { name: "Property", icon: "SettingFolder" }
         }
     });
 });
@@ -119,9 +119,9 @@ function EventContextFolder(KeyEvent, id) {
         case "Open":
             ctFolderOpen(obj);
             break;
-        //        case "Zip": 
-        //            ctFolderZip(obj); 
-        //            break; 
+        case "Zip": 
+            ctFolderZip(obj); 
+            break; 
         case "Rename":
             ctFolderRename(obj);
             break;
@@ -144,9 +144,11 @@ function EventContextFolder(KeyEvent, id) {
 function ctFolderOpen(obj) {
     GetList(obj.path);
 }
-//function ctFolderZip(obj) {
-//    
-//}
+function ctFolderZip(obj) {
+    $('#txtStatusZip').text('');
+    $('#lbZipFolderName').text(obj.name);
+    $('#txtZipName').val(getOnlynameFile(obj.name));
+}
 function ctFolderRename(obj) {
     $('#Extension').text('');
     $('#txtStatusRename').text('');
@@ -193,7 +195,9 @@ $(function () {
             "Download": { name: "Download", icon: "DownloadFile" },
             "Rename": { name: "Rename", icon: "RenameFile", cssover: "popup-button", href: "#popup_Rename" },
             "Move": { name: "Move", icon: "MoveFile" },
-            "Delete": { name: "Delete", icon: "DeleteFile", cssover: "popup-button", href: "#popup_confirm" }
+            "Delete": { name: "Delete", icon: "DeleteFile", cssover: "popup-button", href: "#popup_confirm" },
+            "line": "---------",
+            "Property": { name: "Property", icon: "SettingFolder" }
         }
     });
 });
@@ -214,6 +218,7 @@ function EventContextFile(KeyEvent, id) {
         case "Download":
             ctFileDownload(obj);
             break;
+        
         default:
     }
 }
@@ -250,10 +255,12 @@ function getListCheck() {
     if (sList != '') {
         $('#BT_Call_Move').button("enable");
         $('#BT_Call_Delete').button("enable");
+        $('#BT_Call_Zip').button("enable");
     }
     else {
         $('#BT_Call_Move').button("disable");
         $('#BT_Call_Delete').button("disable");
+        $('#BT_Call_Zip').button("disable");
     }
     ListID = sList;
 }
@@ -529,3 +536,41 @@ $(document).ready(function () {
     });
 });
 ///////////////////property//////////////////////
+
+///////////////////zip folder//////////////////////
+
+$(document).ready(function () {
+    $('#BT_Zip').click(function () {
+        var nName = $.trim($('#txtZipName').val());
+        if (nName == '') {
+            $('#txtStatusZip').text('you must enter name');
+            $('#txtZipName').focus();
+            return;
+        }
+        var oInfo = getItemList(CurrentId);
+        $('#txtStatusZip').text('processing...');
+        $('#BT_Zip').button("disable");
+        $.getJSON('/ajax/command.ashx?cmd=ZipFolder&id=' + CurrentId + '&newname=' + nName
+                    + '&type=' + oInfo.type + '&isFile=' + oInfo.isFile + '&format=json&jsoncallback=?',
+            function (data) {
+                $('#BT_Zip').button("enable");
+                if (data != null) {
+                    if (data.error != null) {
+                        $('#txtStatusZip').text(data.error);
+                        return;
+                    }
+                    else {
+                        $('#txtStatusZip').text('zip ok!');
+                        GetList(CurrentFolder);
+                        //if (!oInfo.isFile) loadTreeview();
+                        setTimeout(function () {
+                            $('#BT_Zip_Cancel').click();
+                        }, 1000);
+                    }
+                }
+                else {
+                    $('#txtStatusZip').text('Not connection!');
+                }
+            });
+    });
+});
