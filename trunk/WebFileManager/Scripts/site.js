@@ -729,38 +729,8 @@ $(document).ready(function () {
     $('#BT_Save_EditText').click(function () {
         $('#lbStatusEditText').text('saving...');
         $('#BT_Save_EditText').button("disable");
-
-        //        alert($('#txtContentEditText').val());
-
-        //        $.ajax({
-        //            url: "/ajax/command.ashx?cmd=SaveText&format=json&id=" + CurrentId + "&jsoncallback=?",
-        //            dataType: "json",
-        //            contentType: "application/json; charset=utf-8",
-        //            type: "POST",
-        //            data: "Content=" + $('#txtContentEditText').val(),
-        //            success: function (data) {
-        //                $('#BT_Save_EditText').button("enable");
-        //                if (data != null) {
-        //                    if (data.error != null) {
-        //                        $('#lbStatusEditText').text(data.error);
-        //                        return;
-        //                    }
-        //                    else {
-        //                        $('#lbStatusEditText').text('saved');
-        //                        setTimeout(function () {
-        //                            $('#BT_EditText_Cancel').click();
-        //                        }, 1000);
-        //                    }
-        //                }
-        //                else {
-        //                    $('#lbStatusEditText').text('Not connection!');
-        //                }
-        //            }
-        //        });
-
         var s = $('#txtContentEditText').val();
         s = s.replace(/\r\n|\r|\n/g, "\\n");
-        alert(s);
         $.getJSON('/ajax/command.ashx?cmd=SaveText&id=' + CurrentId + '&Content=' + s + '&format=json&jsoncallback=?',
         function (data) {
             $('#BT_Save_EditText').button("enable");
