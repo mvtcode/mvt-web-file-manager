@@ -52,26 +52,26 @@ namespace WebFileManager.ajax
                 case "upload":
                     uploads(context);
                     break;
-                case "checkexist":
-
+                case "CheckExistFile":
+                    CheckExistFile(context);
                     break;
-                case "edit":
-
+                case "editText":
+                    editText(context);
                     break;
-                case "getproperty":
-
+                case "SaveText":
+                    SaveText(context);
                     break;
                 case "setproperty":
 
                     break;
-                case "unzip":
-
+                case "ExtractHere":
+                    ExtractHere(context);
                     break;
                 case "ZipFolder":
                     ZipFolder(context);
                     break;
-                case "viewzip":
-
+                case "ViewZip":
+                    ViewZip(context);
                     break;
                 case "treeview":
                     Load_Treeview(context);
@@ -83,6 +83,11 @@ namespace WebFileManager.ajax
                     createFolder(context);
                     break;
             }
+        }
+
+        private void CheckExistFile(HttpContext context)
+        {
+            
         }
 
         private void getlist(HttpContext context)
@@ -169,7 +174,7 @@ namespace WebFileManager.ajax
                 string sNew = context.Request["newname"];
                 bool isFile = (context.Request["isFile"] == "true");
 
-                if(!checkNameNotUse(sNew,isFile))
+                if (!checkNameNotUse(sNew, isFile))
                 {
                     oItem.error = isFile ? "canot use file name" : "canot use folder name";
                     return;
@@ -242,7 +247,7 @@ namespace WebFileManager.ajax
                 string sCurrentFolder = getFullPath(context.Request.QueryString["fd"], context);
                 string sNewFolder = getFullPath(context.Request.QueryString["nfd"], context);
 
-                if(sCurrentFolder==sNewFolder) return;
+                if (sCurrentFolder == sNewFolder) return;
 
                 if (isFile)
                 {
@@ -278,7 +283,7 @@ namespace WebFileManager.ajax
                         }
                         else
                         {
-                            if(sNewFolder.StartsWith(sName))
+                            if (sNewFolder.StartsWith(sName))
                             {
                                 oItem.error = "canot move to sub this folder";
                             }
@@ -331,7 +336,7 @@ namespace WebFileManager.ajax
                     }
                     else
                     {
-                        System.IO.Directory.Delete(sName,true);
+                        System.IO.Directory.Delete(sName, true);
                     }
                 }
             }
@@ -348,13 +353,176 @@ namespace WebFileManager.ajax
                 context.Response.End();
             }
         }
-        //move
-        //upload
-        //checkexist
+
         //edit
-        //getproperty
+        private void editText(HttpContext context)
+        {
+            context.Response.ContentType = "text/plain";
+            string sContent = "";
+            try
+            {
+                string sPath = IdToFile(context.Request["id"], context);
+                StreamReader stream = new StreamReader(sPath);
+                sContent = stream.ReadToEnd();
+                if (sContent == null) sContent = " ";
+                stream.Close();
+                stream.Dispose();
+                context.Response.StatusCode = 200;
+            }
+            catch (Exception ex)
+            {
+                context.Response.StatusCode = 404;
+                throw new ApplicationException(ex.Message);
+            }
+            finally
+            {
+                context.Response.Write(sContent);
+            }
+        }
+
+        private void SaveText(HttpContext context)
+        {
+            context.Response.ContentType = "application/json";
+            FileInfo oItem = new FileInfo();
+            try
+            {
+                string sFile = IdToFile(context.Request["id"], context);
+                string sContent = context.Request["Content"];
+                if(sContent!=null) sContent = sContent.Replace("\\n","\r\n");
+                if (!File.Exists(sFile))
+                {
+                    oItem.error = "file not exist";
+                }
+                else
+                {
+                    //char[] b = sContent.ToCharArray();
+                    StreamWriter stream = new StreamWriter(sFile, false);
+                    stream.Write(sContent);//stream.Write(b);
+                    stream.Close();
+                    stream.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                oItem.error = ex.Message;
+                throw new ApplicationException(ex.Message);
+            }
+            finally
+            {
+                string sContent = Newtonsoft.Json.JsonConvert.SerializeObject(oItem, new JavaScriptDateTimeConverter());
+                context.Response.Clear();
+                context.Response.Write(context.Request["jsoncallback"] + "(" + sContent + ")");
+                context.Response.End();
+            }
+        }
         //setproperty
-        //unzip
+
+        private void ExtractHere(HttpContext context)
+        {
+            context.Response.ContentType = "application/json";
+            FileInfo oItem = new FileInfo();
+            try
+            {
+                string sFile = IdToFile(context.Request["id"], context);
+                bool bOver = (context.Request["Overwrite"] == "true");
+                if (!File.Exists(sFile))
+                {
+                    oItem.error = "file not exist";
+                    return;
+                }
+
+                if (!sFile.ToLower().EndsWith(".zip"))
+                {
+                    oItem.error = "file not type .zip";
+                    return;
+                }
+
+                using (ZipFile zip = ZipFile.Read(sFile))
+                {
+                    foreach (ZipEntry zipEntry in zip)
+                    {
+                        if (bOver)
+                            zipEntry.Extract(Path.GetDirectoryName(sFile), ExtractExistingFileAction.OverwriteSilently);  // overwrite == true 
+                        else
+                            zipEntry.Extract(Path.GetDirectoryName(sFile), ExtractExistingFileAction.DoNotOverwrite);  // overwrite == false 
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                oItem.error = ex.Message;
+                throw new ApplicationException(ex.Message);
+            }
+            finally
+            {
+                string sContent = Newtonsoft.Json.JsonConvert.SerializeObject(oItem, new JavaScriptDateTimeConverter());
+                context.Response.Clear();
+                context.Response.Write(context.Request["jsoncallback"] + "(" + sContent + ")");
+                context.Response.End();
+            }
+        }
+
+        private void ViewZip(HttpContext context)
+        {
+            context.Response.ContentType = "application/json";
+            FileInfo oItem = new FileInfo();
+            string sName = IdToFile(context.Request["id"], context);
+            bool isFile = (context.Request["isFile"] == "true");
+            if (isFile)
+            {
+                if (!File.Exists(sName))
+                {
+                    oItem.error = "file not exist";
+                }
+                else
+                    if (!sName.ToLower().EndsWith(".zip"))
+                    {
+                        oItem.error = "file not type .zip";
+                    }
+                    else
+                    {
+                        List<FileInfo> oList = new List<FileInfo>();
+                        try
+                        {
+                            using (ZipFile zip = ZipFile.Read(sName))
+                            {
+                                foreach (ZipEntry zipEntry in zip)
+                                {
+                                    //e.Extract(TargetDirectory, true);  // overwrite == true  
+                                    //listBox1.Items.Add(zipEntry.FileName);
+                                    oItem = new FileInfo
+                                                {
+                                                    name = zipEntry.FileName,
+                                                    url = zipEntry.Info,
+                                                    DateEdit = zipEntry.LastModified,
+                                                    DateCreate = zipEntry.CreationTime,
+                                                    isFile = zipEntry.IsDirectory == false
+                                                };
+                                    oList.Add(oItem);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            oItem.error = ex.Message;
+                            throw new ApplicationException(ex.Message);
+                        }
+                        finally
+                        {
+                            string sContent = Newtonsoft.Json.JsonConvert.SerializeObject(oList, new JavaScriptDateTimeConverter());
+                            context.Response.Clear();
+                            context.Response.Write(context.Request["jsoncallback"] + "(" + sContent + ")");
+                            context.Response.End();
+                        }
+                        return;
+                    }
+            }
+
+            string sContentx = Newtonsoft.Json.JsonConvert.SerializeObject(oItem, new JavaScriptDateTimeConverter());
+            context.Response.Clear();
+            context.Response.Write(context.Request["jsoncallback"] + "(" + sContentx + ")");
+            context.Response.End();
+        }
 
         private void ZipFolder(HttpContext context)
         {
@@ -366,7 +534,7 @@ namespace WebFileManager.ajax
                 string sName = context.Request["newname"];
                 bool isFile = (context.Request["isFile"] == "true");
 
-                if(isFile)
+                if (isFile)
                 {
                     oItem.error = "you must select folder";
                     return;
@@ -521,7 +689,7 @@ namespace WebFileManager.ajax
                 string sFolder = context.Request.QueryString["fd"];
                 sFolder = getFullPath(sFolder, context);
 
-                if (!checkNameNotUse(sName,false))
+                if (!checkNameNotUse(sName, false))
                 {
                     oItem.error = "canot use folder name";
                     return;
@@ -645,11 +813,11 @@ namespace WebFileManager.ajax
             return (ServerLocal == ServerRefeffer);
         }
 
-        private bool checkNameNotUse(string sName,bool isFile)
+        private bool checkNameNotUse(string sName, bool isFile)
         {
             string[] notName = { "CON", "PRN", "NUL", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9" };
 
-            if(isFile)
+            if (isFile)
             {
                 sName = Path.GetFileNameWithoutExtension(sName);
             }

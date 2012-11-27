@@ -186,7 +186,7 @@ function getItemList(id) {
 /////////////////context menu file//////////////////
 $(function () {
     $.contextMenu({
-        selector: '#ListItem .itemfile .name',
+        selector: '#ListItem .itemfile .name:not(.zip,.txt,.html,.htm)',
         callback: function (key, options) {
             var id = $(this).parent().attr('id');
             EventContextFile(key, id);
@@ -197,6 +197,54 @@ $(function () {
             "Move": { name: "Move", icon: "MoveFile" },
             "Delete": { name: "Delete", icon: "DeleteFile", cssover: "popup-button", href: "#popup_confirm" },
             "line": "---------",
+            "Property": { name: "Property", icon: "SettingFolder" }
+        }
+    });
+});
+
+$(function () {
+    $.contextMenu({
+        selector: '#ListItem .itemfile .zip',
+        callback: function (key, options) {
+            var id = $(this).parent().attr('id');
+            EventContextFile(key, id);
+        },
+        items: {
+            "Download": { name: "Download", icon: "DownloadFile" },
+            "Rename": { name: "Rename", icon: "RenameFile", cssover: "popup-button", href: "#popup_Rename" },
+            "Move": { name: "Move", icon: "MoveFile" },
+            "Delete": { name: "Delete", icon: "DeleteFile", cssover: "popup-button", href: "#popup_confirm" },
+            "line": "---------",
+            
+            "OpenOrchive": { name: "View Zip File",icon: "Zip", cssover: "popup-button", href: "#popup-viewzip" },
+            /*"Zip": { name: "Zip", icon: "Zip",
+                items: {
+                    "OpenOrchive": { name: "Open orchive", cssover: "popup-button", href: "#popup-viewzip" },
+                    "ExtractHere": { name: "Extract here" },
+                    "ExtractTo": { name: "Extract to..." }
+                }
+            },*/
+            "line2": "---------",
+            "Property": { name: "Property", icon: "SettingFolder" }
+        }
+    });
+});
+
+$(function () {
+    $.contextMenu({
+        selector: '#ListItem .itemfile .txt,#ListItem .itemfile html,#ListItem .itemfile .htm',
+        callback: function (key, options) {
+            var id = $(this).parent().attr('id');
+            EventContextFile(key, id);
+        },
+        items: {
+            "Download": { name: "Download", icon: "DownloadFile" },
+            "Rename": { name: "Rename", icon: "RenameFile", cssover: "popup-button", href: "#popup_Rename" },
+            "Move": { name: "Move", icon: "MoveFile" },
+            "Delete": { name: "Delete", icon: "DeleteFile", cssover: "popup-button", href: "#popup_confirm" },
+            "line": "---------",
+            "EditText": { name: "Edit Text", icon: "edit", cssover: "popup-button", href: "#popup-editText" },
+            "line2": "---------",
             "Property": { name: "Property", icon: "SettingFolder" }
         }
     });
@@ -218,7 +266,18 @@ function EventContextFile(KeyEvent, id) {
         case "Download":
             ctFileDownload(obj);
             break;
-        
+        case "OpenOrchive":
+            ctViewZipFile(obj);
+            break;
+        case "ExtractHere":
+            ctExtractHere(obj);
+            break;
+        case "ExtractTo":
+            ctExtractTo(obj);
+            break;
+        case "EditText":
+            ctEditText(obj);
+            break;
         default:
     }
 }
@@ -230,6 +289,67 @@ function ctFileRename(obj) {
 }
 function ctFileDownload(obj) {
     window.open("/ajax/command.ashx?cmd=download&id=" + obj.id);
+}
+
+function ctViewZipFile(obj) {
+    $('#lbnameZip').text(obj.name);
+    $('#ListContentZip').html('');
+    $('#lbStatusContentZipFile').text('');
+    document.getElementById("CB_Overwrite1").checked = false;
+    $('#lbStatusContentZipFile').text('Opening...');
+    $('#BT_ExtractHere').button("disable");
+    $.getJSON('/ajax/command.ashx?cmd=ViewZip&id=' + CurrentId + '&type=' + obj.type
+        + '&isFile=' + obj.isFile + '&format=json&jsoncallback=?',
+            function (data) {
+                $('#BT_ExtractHere').button("enable");
+                if (data != null) {
+                    if (data.error != null) {
+                        $('#lbStatusContentZipFile').text(data.error);
+                        return;
+                    }
+                    else {
+                        $('#lbStatusContentZipFile').text('');
+                        showContentZip(data);
+                    }
+                }
+                else {
+                    $('#lbStatusContentZipFile').text('Not connection!');
+                }
+            });
+}
+function ctExtractHere(obj) {
+    
+}
+
+function ctExtractTo(obj) {
+
+}
+
+function ctEditText(obj) {
+    $('#lbStatusEditText').text('');
+    $('#lbFileNameEditText').text(obj.name);
+    $('#txtContentEditText').val('');
+    $.ajax({
+        url: '/ajax/command.ashx?cmd=editText&id=' + CurrentId,
+        success: function (data) {
+            $('#txtContentEditText').val(data);
+        }
+    });
+}
+
+function showContentZip(olist) {
+    if (olist != null && olist.length > 0) {
+        var sHtml = '';
+        $.each(olist, function (i, val) {
+            sHtml += '<li>';
+            sHtml += '<span>' + val.name + '</span>';
+            sHtml += '</li>';
+        });
+        $('#ListContentZip').html(sHtml);
+    }
+    else {
+        $('#ListContentZip').html('no item');
+    }
 }
 
 function getOnlynameFile(sfile) {
@@ -572,5 +692,93 @@ $(document).ready(function () {
                     $('#txtStatusZip').text('Not connection!');
                 }
             });
+    });
+});
+
+///////////////////Extract zip//////////////////////
+$(document).ready(function () {
+    $('#BT_ExtractHere').click(function () {
+        $('#lbStatusContentZipFile').text('Extracting...');
+        $('#BT_ExtractHere').button("disable");
+        $.getJSON('/ajax/command.ashx?cmd=ExtractHere&id=' + CurrentId + '&Overwrite=' + document.getElementById("CB_Overwrite1").checked + '&format=json&jsoncallback=?',
+            function (data) {
+                $('#BT_ExtractHere').button("enable");
+                if (data != null) {
+                    if (data.error != null) {
+                        $('#lbStatusContentZipFile').text(data.error);
+                        return;
+                    }
+                    else {
+                        $('#lbStatusContentZipFile').text('Extract ok!');
+                        GetList(CurrentFolder);
+                        loadTreeview();
+                        setTimeout(function () {
+                            $('#BT_ContentZip_Cancel').click();
+                        }, 1000);
+                    }
+                }
+                else {
+                    $('#lbStatusContentZipFile').text('Not connection!');
+                }
+            });
+    });
+});
+
+///////////////////edit text//////////////////////
+$(document).ready(function () {
+    $('#BT_Save_EditText').click(function () {
+        $('#lbStatusEditText').text('saving...');
+        $('#BT_Save_EditText').button("disable");
+
+        //        alert($('#txtContentEditText').val());
+
+        //        $.ajax({
+        //            url: "/ajax/command.ashx?cmd=SaveText&format=json&id=" + CurrentId + "&jsoncallback=?",
+        //            dataType: "json",
+        //            contentType: "application/json; charset=utf-8",
+        //            type: "POST",
+        //            data: "Content=" + $('#txtContentEditText').val(),
+        //            success: function (data) {
+        //                $('#BT_Save_EditText').button("enable");
+        //                if (data != null) {
+        //                    if (data.error != null) {
+        //                        $('#lbStatusEditText').text(data.error);
+        //                        return;
+        //                    }
+        //                    else {
+        //                        $('#lbStatusEditText').text('saved');
+        //                        setTimeout(function () {
+        //                            $('#BT_EditText_Cancel').click();
+        //                        }, 1000);
+        //                    }
+        //                }
+        //                else {
+        //                    $('#lbStatusEditText').text('Not connection!');
+        //                }
+        //            }
+        //        });
+
+        var s = $('#txtContentEditText').val();
+        s = s.replace(/\r\n|\r|\n/g, "\\n");
+        alert(s);
+        $.getJSON('/ajax/command.ashx?cmd=SaveText&id=' + CurrentId + '&Content=' + s + '&format=json&jsoncallback=?',
+        function (data) {
+            $('#BT_Save_EditText').button("enable");
+            if (data != null) {
+                if (data.error != null) {
+                    $('#lbStatusEditText').text(data.error);
+                    return;
+                }
+                else {
+                    $('#lbStatusEditText').text('saved');
+                    setTimeout(function () {
+                        $('#BT_EditText_Cancel').click();
+                    }, 1000);
+                }
+            }
+            else {
+                $('#lbStatusEditText').text('Not connection!');
+            }
+        });
     });
 });
