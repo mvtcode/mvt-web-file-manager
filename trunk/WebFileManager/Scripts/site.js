@@ -107,7 +107,7 @@ $(function () {
             "Delete": { name: "Delete", icon: "DeleteFolder", cssover: "popup-button", href: "#popup_confirm" },
             //"Download": { name: "Download", icon: "DownloadFolder" },
             "line": "---------",
-            "Property": { name: "Property", icon: "SettingFolder" }
+            "Property": { name: "Property", icon: "SettingFolder", cssover: "popup-button", href: "#popup_Property" }
         }
     });
 });
@@ -172,7 +172,18 @@ function ctDelete(obj) {
 //    
 //}
 function ctFolderSetting(obj) {
-
+    $('#lbStatusProperty').text('');
+    $('#lbFilenameProperty').text(obj.name);
+    var sCapasity = obj.length;
+    if(sCapasity!=null && sCapasity !='')
+        $('#lbCapasity').text('Size: ' + obj.length);
+    else
+        $('#lbCapasity').text('');
+    document.getElementById('CB_System').checked = obj.isSystem;
+    document.getElementById('CB_Readonly').checked = obj.isReadOnly;
+    document.getElementById('CB_Hidden').checked = obj.isHidden; 
+    //BT_Property_Ok
+    //BT_Property_Cancel
 }
 
 function getItemList(id) {
@@ -197,7 +208,7 @@ $(function () {
             "Move": { name: "Move", icon: "MoveFile" },
             "Delete": { name: "Delete", icon: "DeleteFile", cssover: "popup-button", href: "#popup_confirm" },
             "line": "---------",
-            "Property": { name: "Property", icon: "SettingFolder" }
+            "Property": { name: "Property", icon: "SettingFolder", cssover: "popup-button", href: "#popup_Property" }
         }
     });
 });
@@ -225,7 +236,7 @@ $(function () {
                 }
             },*/
             "line2": "---------",
-            "Property": { name: "Property", icon: "SettingFolder" }
+            "Property": { name: "Property", icon: "SettingFolder", cssover: "popup-button", href: "#popup_Property" }
         }
     });
 });
@@ -245,7 +256,7 @@ $(function () {
             "line": "---------",
             "EditText": { name: "Edit Text", icon: "edit", cssover: "popup-button", href: "#popup-editText" },
             "line2": "---------",
-            "Property": { name: "Property", icon: "SettingFolder" }
+            "Property": { name: "Property", icon: "SettingFolder", cssover: "popup-button", href: "#popup_Property" }
         }
     });
 });
@@ -277,6 +288,9 @@ function EventContextFile(KeyEvent, id) {
             break;
         case "EditText":
             ctEditText(obj);
+            break;
+        case "Property":
+            ctFolderSetting(obj);
             break;
         default:
     }
@@ -423,6 +437,7 @@ $(document).ready(function () {
 
     $('#BT_Call_Refresh').click(function() {
         GetList(CurrentFolder);
+        loadTreeview();
     });
 
     $('#BT_Show_Move').click(function () {
@@ -457,13 +472,14 @@ function loadTreeview() {
     });
 }
 function BuildTreeview() {
+    $('.hitarea').unbind('click');
     $("#treeview").treeview({
         animated: "fast",
         collapsed: true,
         unique: true,
         //persist: "cookie",
         toggle: function () {
-            window.console && console.log("%o was toggled", this);
+            //window.console && console.log("%o was toggled", this);
         }
     });
 
@@ -511,6 +527,11 @@ $(document).ready(function () {
         var nName = $.trim($('#txtFileName').val());
         if (nName == '') {
             $('#txtStatusRename').text('you must select folder');
+            $('#txtFileName').focus();
+            return;
+        }
+        if (!validateFileName(nName)) {
+            $('#txtStatusRename').text('validate name');
             $('#txtFileName').focus();
             return;
         }
@@ -594,7 +615,11 @@ function validateFolderName(sname) {
     var regex = new RegExp("^[a-zA-Z0-9_ ]+$", "gi");
     return regex.test(sname);
 }
-    
+
+function validateFileName(sname) {
+    var regex = new RegExp("^[a-zA-Z0-9_ ()-]+$", "gi");
+    return regex.test(sname);
+}
 ///////////////////delete//////////////////////
 $(document).ready(function () {
     $('#BT_Delete').click(function () {
@@ -655,7 +680,6 @@ $(document).ready(function () {
         });
     });
 });
-///////////////////property//////////////////////
 
 ///////////////////zip folder//////////////////////
 
