@@ -97,9 +97,8 @@ namespace WebFileManager.ajax
             context.Response.ContentEncoding = Encoding.UTF8;
             string sContent = "";
 
-            string sRoot = System.Configuration.ConfigurationManager.AppSettings["RootFolder"];
+            string sRoot = getRootFolder(context);
             string sFolder = sRoot;
-            if (sFolder.IndexOf(@":\") < 0) sFolder = context.Server.MapPath(sFolder);
             if (!sFolder.EndsWith(@"\")) sFolder += @"\";
             if (context.Request.QueryString["fd"] != null && context.Request.QueryString["fd"].Length > 0)
             {
@@ -643,9 +642,8 @@ namespace WebFileManager.ajax
 
         public static string IdToFile(string id, HttpContext context)
         {
-            string sRoot = System.Configuration.ConfigurationManager.AppSettings["RootFolder"];
+            string sRoot = getRootFolder(context);
             string sFolder = EnCryptString.DeCrypt(id);
-            if (sRoot.IndexOf(@":\") < 0) sRoot = context.Server.MapPath(sRoot);
             if (!sRoot.EndsWith(@"\")) sRoot += @"\";
 
             if (sFolder != null && sFolder.Length > 0)
@@ -658,8 +656,7 @@ namespace WebFileManager.ajax
 
         public static string getFullPath(string sname, HttpContext context)
         {
-            string sRoot = System.Configuration.ConfigurationManager.AppSettings["RootFolder"];
-            if (sRoot.IndexOf(@":\") < 0) sRoot = context.Server.MapPath(sRoot);
+            string sRoot = getRootFolder(context);
             if (!sRoot.EndsWith(@"\")) sRoot += @"\";
 
             if (sname != null && sname.Length > 0)
@@ -733,9 +730,8 @@ namespace WebFileManager.ajax
             try
             {
                 HttpPostedFile postedFile = context.Request.Files["Filedata"];
-                string sRoot = System.Configuration.ConfigurationManager.AppSettings["RootFolder"];
+                string sRoot = getRootFolder(context);
                 string sFolder = sRoot;
-                if (sFolder.IndexOf(@":\") < 0) sFolder = context.Server.MapPath(sFolder);
                 if (!sFolder.EndsWith(@"\")) sFolder += @"\";
                 if (context.Request["fd"] != null && context.Request["fd"].Length > 0)
                 {
@@ -776,19 +772,19 @@ namespace WebFileManager.ajax
         /********************************************************************/
         private void Load_Treeview(HttpContext context)
         {
-            string sFolder = System.Configuration.ConfigurationManager.AppSettings["RootFolder"];
+            string sFolder = getRootFolder(context);
             string sTree = "";
             sTree = "<li><span title=\"Root\" class=\"open\">Root</span>";
-            ListDirectories(sFolder, ref sTree);
+            ListDirectories(sFolder, ref sTree,context);
             sTree += "</li>";
 
             context.Response.ContentType = "text/plain";
             context.Response.Write(sTree);
             context.Response.StatusCode = 200;
         }
-        private void ListDirectories(string path, ref string sPath)
+        private void ListDirectories(string path, ref string sPath, HttpContext context)
         {
-            string sFolder = System.Configuration.ConfigurationManager.AppSettings["RootFolder"];
+            string sFolder = getRootFolder(context);
             var directories = Directory.GetDirectories(path);
             if (directories.Any())
             {
@@ -797,13 +793,19 @@ namespace WebFileManager.ajax
                 {
                     var di = new DirectoryInfo(directory);
                     sPath += string.Format("<li><span title=\"{0}\">{1}</span>", di.FullName.Replace(sFolder, "Root").Replace('\\', '/'), di.Name);
-                    ListDirectories(directory, ref sPath);
+                    ListDirectories(directory, ref sPath,context);
                     sPath += "</li>";
                 }
                 sPath += "</ul>";
             }
         }
 
+        private static string getRootFolder(HttpContext context)
+        {
+            string sRoot = System.Configuration.ConfigurationManager.AppSettings["RootFolder"];
+            if (sRoot.IndexOf(@":\") < 0) sRoot = context.Server.MapPath(sRoot);
+            return sRoot;
+        }
         /********************************************************************/
         private bool AllowCall(HttpContext context)
         {
