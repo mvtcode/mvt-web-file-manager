@@ -2,6 +2,8 @@
 var CurrentFolder;
 var CurrentId;
 var ListID;
+var isList = false;
+
 function genLink() {
     var sLink = CurrentFolder;
     $('#curentFolder').text(sLink);
@@ -60,11 +62,11 @@ function biuldGrid(olist) {
                 sHtml += '<li class="name"><a href="javascript:void(0);" onclick="GetList(\'' + val.path + '\')">' + val.name + '</a></li>';
             }
             else {
-                sHtml += '<li class="name ' + val.type + '">' + val.name + '</li>';
+                sHtml += '<li class="' + val.type.toLowerCase() + ' name">' + val.name + '</li>';
             }
             sHtml += '<li class="size">' + val.length + '</li>';
-            sHtml += '<li class="create">' + ShowFormatDate(val.DateCreate) + '</li>';
-            sHtml += '<li class="modify">' + ShowFormatDate(val.DateEdit) + '</li>';
+            sHtml += '<li class="create">' + ShowFormatDateTime(val.DateCreate) + '</li>';
+            sHtml += '<li class="modify">' + ShowFormatDateTime(val.DateEdit) + '</li>';
             sHtml += '</ul>';
         });
         $('#ListItem').html(sHtml);
@@ -197,7 +199,7 @@ function getItemList(id) {
 /////////////////context menu file//////////////////
 $(function () {
     $.contextMenu({
-        selector: '#ListItem .itemfile .name:not(.zip,.txt,.html,.htm)',
+        selector: '#ListItem .itemfile .name:not(.zip,.txt,.html,.htm,.jpg,.png,.gif,.bmp)',
         callback: function (key, options) {
             var id = $(this).parent().attr('id');
             EventContextFile(key, id);
@@ -261,6 +263,27 @@ $(function () {
     });
 });
 
+$(function () {
+    $.contextMenu({
+        selector: '#ListItem .itemfile .jpg,#ListItem .itemfile bmp,#ListItem .itemfile .png,#ListItem .itemfile .gif',
+        callback: function (key, options) {
+            var id = $(this).parent().attr('id');
+            EventContextFile(key, id);
+        },
+        items: {
+            "Preview": { name: "Preview", icon: "ViewImage", cssover: "popup-button2", href: "#popup_ViewImg" },
+            "Download": { name: "Download", icon: "DownloadFile" },
+            "Rename": { name: "Rename", icon: "RenameFile", cssover: "popup-button", href: "#popup_Rename" },
+            "Move": { name: "Move", icon: "MoveFile" },
+            "Delete": { name: "Delete", icon: "DeleteFile", cssover: "popup-button", href: "#popup_confirm" },
+            "line": "---------",
+            "EditText": { name: "Edit Text", icon: "edit", cssover: "popup-button", href: "#popup-editText" },
+            "line2": "---------",
+            "Property": { name: "Property", icon: "SettingFolder", cssover: "popup-button", href: "#popup_Property" }
+        }
+    });
+});
+
 function EventContextFile(KeyEvent, id) {
     var obj = getItemList(id);
     CurrentId = id;
@@ -291,6 +314,9 @@ function EventContextFile(KeyEvent, id) {
             break;
         case "Property":
             ctFolderSetting(obj);
+            break;
+        case "Preview":
+            ctPreviewImg(obj);
             break;
         default:
     }
@@ -351,6 +377,38 @@ function ctEditText(obj) {
     });
 }
 
+var oImg;
+function ctPreviewImg(obj) {
+    oImg = $("#popup_ViewImg").html();
+    
+    $('#IMG_Review').attr("src", "");
+    $('#IMG_Review').removeAttr("width"); 
+    $('#lbFileNamePreview').text(obj.name);
+    $('#IMG_Review').attr("src", "/ajax/command.ashx?cmd=download&id=" + obj.id);
+
+    var loadWatch = setInterval(function () {
+        var iW = $("#IMG_Review").width();
+        if (iW>0) {
+            if (iW < 800) {
+                $("#popup_ViewImg").width(iW);
+            }
+            else {
+                $('#IMG_Review').width(800);
+                $("#popup_ViewImg").width(800);
+            }
+            
+            $('#IMG_Review').attr("left", "50 %");
+            clearInterval(loadWatch);
+        }
+    }, 100);
+}
+
+function resetPu() {
+    setTimeout(function() {
+        $("#popup_ViewImg").html(oImg);
+    }, 500);
+}
+
 function showContentZip(olist) {
     if (olist != null && olist.length > 0) {
         var sHtml = '';
@@ -369,6 +427,12 @@ function showContentZip(olist) {
 function getOnlynameFile(sfile) {
     var n = sfile.lastIndexOf('.');
     if (n >= 0) sfile = sfile.substring(0, n);
+    return sfile;
+}
+
+function getOnlynameFile2(sfile) {
+    var n = sfile.lastIndexOf('/');
+    if (n >= 0) sfile = sfile.substring(n+1, sfile.length);
     return sfile;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -435,7 +499,7 @@ $(document).ready(function () {
 
     //////////////////////
 
-    $('#BT_Call_Refresh').click(function() {
+    $('#BT_Call_Refresh').click(function () {
         GetList(CurrentFolder);
         loadTreeview();
     });
@@ -454,9 +518,21 @@ $(document).ready(function () {
         top: 200, //khoảng cách popup cách so với phía trên
         closeButton: ".close_popup, .bt_cancel", //khai báo nút close cho popup
         scroll: false, //cho phép scroll khi mở popup, mặc định là không cho phép
-        //outClose: false, //click ra ngoài là close
+        outClose: false, //click ra ngoài là close
         onClose: function () {
-            CurrentId = ''; //'$('#HD_ID').val('');
+            CurrentId = '';
+            isList = false;
+        }
+    });
+
+    $('.popup-button2').showPopup({
+        top: 100, //khoảng cách popup cách so với phía trên
+        closeButton: ".close_popup, .bt_cancel", //khai báo nút close cho popup
+        scroll: false, //cho phép scroll khi mở popup, mặc định là không cho phép
+        outClose: true, //click ra ngoài là close
+        onClose: function () {
+            CurrentId = '';
+            isList = false;
         }
     });
 });
@@ -623,10 +699,18 @@ function validateFileName(sname) {
 ///////////////////delete//////////////////////
 $(document).ready(function () {
     $('#BT_Delete').click(function () {
-        var oInfo = getItemList(CurrentId);
+        var oInfo;// = getItemList(CurrentId);
         $('#lbStatusDelete').text('processing...');
         $(this).button("disable");
-        $.getJSON('/ajax/command.ashx?cmd=delete&id=' + CurrentId + '&isFile=' + oInfo.isFile + '&format=json&jsoncallback=?',
+        var url;
+        if (isList) {
+            url = '/ajax/command.ashx?cmd=deleteList&listID=' + ListID + '&format=json&jsoncallback=?';
+        }
+        else {
+            oInfo = getItemList(CurrentId);
+            url = '/ajax/command.ashx?cmd=delete&id=' + CurrentId + '&isFile=' + oInfo.isFile + '&format=json&jsoncallback=?';
+        }
+        $.getJSON( url ,
             function (data) {
                 $('#BT_Delete').button("enable");
                 if (data != null) {
@@ -636,8 +720,13 @@ $(document).ready(function () {
                     } else {
                         $('#lbStatusDelete').text('delete ok!');
                         GetList(CurrentFolder);
-                        if (!oInfo.isFile) loadTreeview();
-                        setTimeout(function() {
+                        if(isList) {
+                            loadTreeview();
+                        }
+                        else {
+                            if (!oInfo.isFile) loadTreeview();
+                        }
+                        setTimeout(function () {
                             $('#BT_Delete_Cancel').click();
                         }, 1000);
                     }
@@ -645,6 +734,14 @@ $(document).ready(function () {
                     $('#lbStatusDelete').text('Not connection!');
                 }
             });
+    });
+});
+
+$(document).ready(function () {
+    $('#BT_Call_Delete').click(function () {
+        isList = true;
+        $('#lbStatusDelete').text('');
+        $('#fileDelete').text("Are you want delete all select file.");
     });
 });
 ///////////////////move//////////////////////
@@ -656,10 +753,18 @@ $(document).ready(function () {
             $('#txtFolderMove').focus();
             return;
         }
-        var oInfo = getItemList(CurrentId);
+        var oInfo;// = getItemList(CurrentId);
         $('#lbStatusMove').text('processing...');
         $(this).button("disable");
-        $.getJSON('/ajax/command.ashx?cmd=move&id=' + CurrentId + '&isFile=' + oInfo.isFile + '&fd=' + CurrentFolder + '&nfd=' + nf + '&format=json&jsoncallback=?',
+        var url;
+        if (isList) {
+            url = '/ajax/command.ashx?cmd=moveList&ListId=' + ListID + '&fd=' + CurrentFolder + '&nfd=' + nf + '&format=json&jsoncallback=?';
+        }
+        else {
+            oInfo = getItemList(CurrentId);
+            url = '/ajax/command.ashx?cmd=move&id=' + CurrentId + '&isFile=' + oInfo.isFile + '&fd=' + CurrentFolder + '&nfd=' + nf + '&format=json&jsoncallback=?';
+        }
+        $.getJSON(url,
         function (data) {
             if (data != null) {
                 $('#BT_Move').button("enable");
@@ -669,7 +774,12 @@ $(document).ready(function () {
                 } else {
                     $('#lbStatusMove').text('move ok!');
                     GetList(CurrentFolder);
-                    if (!oInfo.isFile) loadTreeview();
+                    if (isList) {
+                        loadTreeview();
+                    }
+                    else {
+                        if (!oInfo.isFile) loadTreeview();
+                    }
                     setTimeout(function () {
                         $('#BT_Move_Cancel').click();
                     }, 1000);
@@ -681,6 +791,14 @@ $(document).ready(function () {
     });
 });
 
+$(document).ready(function () {
+    $('#BT_Call_Move').click(function () {
+        isList = true;
+        $('#fileMove').text("move file select");
+        $('#lbStatusMove').text('');
+        $('#BT_Show_Move').click();
+    });
+});
 ///////////////////zip folder//////////////////////
 
 $(document).ready(function () {
@@ -691,11 +809,18 @@ $(document).ready(function () {
             $('#txtZipName').focus();
             return;
         }
-        var oInfo = getItemList(CurrentId);
+        var oInfo;// = getItemList(CurrentId);
         $('#txtStatusZip').text('processing...');
         $('#BT_Zip').button("disable");
-        $.getJSON('/ajax/command.ashx?cmd=ZipFolder&id=' + CurrentId + '&newname=' + nName
-                    + '&type=' + oInfo.type + '&isFile=' + oInfo.isFile + '&format=json&jsoncallback=?',
+        var url;
+        if (isList) {
+            url = '/ajax/command.ashx?cmd=ZipList&ListID=' + ListID + '&newname=' + nName + '&fd=' + CurrentFolder + '&format=json&jsoncallback=?';
+        }
+        else {
+            oInfo = getItemList(CurrentId);
+            url = '/ajax/command.ashx?cmd=ZipFolder&id=' + CurrentId + '&newname=' + nName + '&type=' + oInfo.type + '&isFile=' + oInfo.isFile + '&format=json&jsoncallback=?';
+        }
+        $.getJSON(url,
             function (data) {
                 $('#BT_Zip').button("enable");
                 if (data != null) {
@@ -719,6 +844,14 @@ $(document).ready(function () {
     });
 });
 
+$(document).ready(function () {
+    $('#BT_Call_Zip').click(function () {
+        isList = true;
+        $('#txtStatusZip').text('');
+        $('#lbZipFolderName').text("Zip all select file");
+        $('#txtZipName').val(getOnlynameFile2(CurrentFolder));
+    });
+});
 ///////////////////Extract zip//////////////////////
 $(document).ready(function () {
     $('#BT_ExtractHere').click(function () {

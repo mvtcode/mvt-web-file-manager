@@ -72,6 +72,17 @@
     <Content Include="images\context\page_white_edit.png" />
     <Content Include="images\context\page_white_paste.png" />
     <Content Include="images\edit.gif" />
+    <Content Include="images\FileType\7zip.png" />
+    <Content Include="images\FileType\doc_rtf.png" />
+    <Content Include="images\FileType\install.png" />
+    <Content Include="images\FileType\iso.png" />
+    <Content Include="images\FileType\txt.png" />
+    <Content Include="images\FileType\excel.png" />
+    <Content Include="images\FileType\html_htm.png" />
+    <Content Include="images\FileType\media_optical_audio.png" />
+    <Content Include="images\FileType\images.png" />
+    <Content Include="images\FileType\rar.png" />
+    <Content Include="images\FileType\zip.png" />
     <Content Include="images\hd-bg.png" />
     <Content Include="images\icon\capacity.png" />
     <Content Include="images\icon\date-icon.png" />

@@ -18,14 +18,6 @@ E:\Project\new new new\WebFileManager\obj\Debug\WebFileManager.dll
 E:\Project\new new new\WebFileManager\obj\Debug\WebFileManager.pdb
 E:\Project\new new new\WebFileManager\bin\Newtonsoft.Json.dll
 E:\Project\new new new\WebFileManager\bin\NLog.dll
-D:\Project\mvt-web-file-manager\WebFileManager\bin\WebFileManager.dll
-D:\Project\mvt-web-file-manager\WebFileManager\bin\WebFileManager.pdb
-D:\Project\mvt-web-file-manager\WebFileManager\bin\Newtonsoft.Json.dll
-D:\Project\mvt-web-file-manager\WebFileManager\bin\NLog.dll
-D:\Project\mvt-web-file-manager\WebFileManager\obj\Debug\ResolveAssemblyReference.cache
-D:\Project\mvt-web-file-manager\WebFileManager\obj\Debug\WebFileManager.dll.licenses
-D:\Project\mvt-web-file-manager\WebFileManager\obj\Debug\WebFileManager.dll
-D:\Project\mvt-web-file-manager\WebFileManager\obj\Debug\WebFileManager.pdb
 E:\Project\new new new\mvt-web-file-manager\WebFileManager\bin\WebFileManager.dll
 E:\Project\new new new\mvt-web-file-manager\WebFileManager\bin\WebFileManager.pdb
 E:\Project\new new new\mvt-web-file-manager\WebFileManager\bin\Newtonsoft.Json.dll
@@ -34,5 +26,4 @@ E:\Project\new new new\mvt-web-file-manager\WebFileManager\obj\Debug\ResolveAsse
 E:\Project\new new new\mvt-web-file-manager\WebFileManager\obj\Debug\WebFileManager.dll.licenses
 E:\Project\new new new\mvt-web-file-manager\WebFileManager\obj\Debug\WebFileManager.dll
 E:\Project\new new new\mvt-web-file-manager\WebFileManager\obj\Debug\WebFileManager.pdb
-D:\Project\mvt-web-file-manager\WebFileManager\bin\Ionic.Zip.dll
 E:\Project\new new new\mvt-web-file-manager\WebFileManager\bin\Ionic.Zip.dll

@@ -1,19 +1,27 @@
-﻿img {
+﻿a{
+    text-decoration: none;
+}
+
+.footer a:link,.footer a:visited {
+    color: #888;
+    font-weight: bold;
+}
+
+img {
     border: none;
 }
 #MainGrid {
-    /*border: 1px solid #FF0000;*/
     display: block;
     height: auto;
 }
 
 #MainGrid ul {
-    width: 918px;    
+    width: 918px;
     margin: 0px;
-    padding: 0px; 
+    padding: 0px;
     border: 1px solid #DDDDDD;
     list-style: none;
-    border-top: none;    
+    border-top: none;
 }
 
 #MainGrid ul li {
@@ -43,6 +51,7 @@
 }
 #MainGrid ul.title li.name{
     width: 431px;
+    background: none;
 }
 
 #MainGrid ul.title li.size{
@@ -50,11 +59,12 @@
 }
 
 #MainGrid ul.title li.create{
-    width: 92px;
+    width: 161px;
 }
 
 #MainGrid ul.title li.modify{
-    width: 92px;
+    width: 161px;
+    border-right: none;
 }
 
 #MainGrid ul.title li.TitleActive{
@@ -67,30 +77,33 @@
 #MainGrid .listitem li.TitleSelect
 {
     text-align: center;
-    width: 46px;
+    width: 49px;
     padding-right: 1px;
 }
-#MainGrid .listitem li.name{
-    width: 411px;
+
+.name{
     background: url('/images/icon/file.png') 2px center no-repeat transparent;/*icon default*/
+}
+#MainGrid .listitem li.name{
+    width: 415px;
 }
 
 #MainGrid .listitem li.size{
-    width: 72px;
+    width: 76px;
     padding-left: 20px;
-    /*background: url('/images/icon/capacity.png') left no-repeat;*/
 }
 
 #MainGrid .listitem li.create{
-    width: 72px;
+    width: 145px;
     padding-left: 20px;
     background: url('/images/icon/date-icon.png') 2px center no-repeat transparent;
 }
 
 #MainGrid .listitem li.modify{
-    width: 72px;
+    width: 145px;
     padding-left: 20px;
     background: url('/images/icon/date-icon.png') 2px center no-repeat transparent;
+    border-right: none;   
 }
 
 #MainGrid .listitem li.TitleActive{
@@ -108,7 +121,6 @@
 #MainGrid .listitem .listfolder .name {
     padding-left: 20px;
     background: url('/images/icon/folder-icon.png') 2px center no-repeat transparent;
-    /*width: 512px;*/
 }
 
 /*item*/
@@ -129,7 +141,6 @@
     padding-left: 10px;
     border: none;
     text-decoration: none;
-    /*display: none;*/
 }
 
 /*upload*/
@@ -217,4 +228,48 @@
     -moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
     box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
     width: 99%;
+}
+
+.txt {
+    background: url('/images/FileType/txt.png') 2px center no-repeat transparent;
+}
+
+.htm, html {
+    background: url('/images/FileType/html_htm.png') 2px center no-repeat transparent;
+}
+
+.zip {
+    background: url('/images/FileType/zip.png') 2px center no-repeat transparent;
+}
+
+.rar {
+    background: url('/images/FileType/rar.png') 2px center no-repeat transparent;
+}
+
+.7z, .7zip{
+    background: url('/images/FileType/7zip.png') 2px center no-repeat transparent;
+}
+
+.xls, .xlsx{
+    background: url('/images/FileType/excel.png') 2px center no-repeat transparent;
+}
+
+.doc, .docx,.rtf{
+    background: url('/images/FileType/doc_rtf.png') 2px center no-repeat transparent;
+}
+
+.mp3,.mav,.amv,.m4a {
+    background: url('/images/FileType/media_optical_audio.png') 2px center no-repeat transparent;
+}
+
+.exe,.msi {
+    background: url('/images/FileType/install.png') 2px center no-repeat transparent;
+}
+
+.jpg,.png,.bmp,.gif {
+    background: url('/images/FileType/images.png') 2px center no-repeat transparent;
+}
+
+.iso {
+    background: url('/images/FileType/iso.png') 2px center no-repeat transparent;
 }
