@@ -388,7 +388,8 @@ function ctPreviewImg(obj) {
         var iW = $("#IMG_Review").width();
         if (iW>0) {
             if (iW < 800) {
-                $("#popup_ViewImg").width(iW);
+                if(iW > 404)
+                    $("#popup_ViewImg").width(iW);
             }
             else {
                 $('#IMG_Review').width(800);
