@@ -276,8 +276,6 @@ $(function () {
             "Rename": { name: "Rename", icon: "RenameFile", cssover: "popup-button", href: "#popup_Rename" },
             "Move": { name: "Move", icon: "MoveFile" },
             "Delete": { name: "Delete", icon: "DeleteFile", cssover: "popup-button", href: "#popup_confirm" },
-            "line": "---------",
-            "EditText": { name: "Edit Text", icon: "edit", cssover: "popup-button", href: "#popup-editText" },
             "line2": "---------",
             "Property": { name: "Property", icon: "SettingFolder", cssover: "popup-button", href: "#popup_Property" }
         }
