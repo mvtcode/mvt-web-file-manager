@@ -465,37 +465,6 @@ $(document).ready(function () {
     $('.popup').draggable({ handle: ".popup-header" });
     $(".button").button();
     GetList('');
-    //$('tr:Odd').addClass('chan');
-    //$('tr:Even').addClass('le');
-
-    //            $("tr").mouseenter(function () {
-    //                if (this.find('td:eq(0)').find('input[type=checkbox]').is(':checked')) {
-    //                    //chawngr lamf j
-    //                }
-    //                else {
-    //                    this.addClass('over');
-    //                }
-    //            }).mouseleave(function () {
-    //                if (bool) {
-    //                    $(this).removeClass("over");
-    //                }
-    //            });
-
-    //            $("tr td input[type=checkbox]").change(function () {
-    //                if ($(this).is(':checked')) {
-    //                    $(this).parent("td").parent("tr").addClass("select");
-    //                } else {
-    //                    $(this).parent("td").parent("tr").removeClass("select");
-    //                }
-    //            });
-
-    //            $('td').filter(function () {
-    //                //return (this.text().lastIndexOf('.m4a')>0);
-    //                alert(this.text());
-    //            }).addClass('m4a');
-    //$('tr').find('td:eq(1)').addClass('m4a');
-
-    //////////////////////
 
     $('#BT_Call_Refresh').click(function () {
         GetList(CurrentFolder);
@@ -751,7 +720,7 @@ $(document).ready(function () {
             $('#txtFolderMove').focus();
             return;
         }
-        var oInfo;// = getItemList(CurrentId);
+        var oInfo;
         $('#lbStatusMove').text('processing...');
         $(this).button("disable");
         var url;
@@ -807,7 +776,7 @@ $(document).ready(function () {
             $('#txtZipName').focus();
             return;
         }
-        var oInfo;// = getItemList(CurrentId);
+        var oInfo;
         $('#txtStatusZip').text('processing...');
         $('#BT_Zip').button("disable");
         var url;
@@ -829,7 +798,6 @@ $(document).ready(function () {
                     else {
                         $('#txtStatusZip').text('zip ok!');
                         GetList(CurrentFolder);
-                        //if (!oInfo.isFile) loadTreeview();
                         setTimeout(function () {
                             $('#BT_Zip_Cancel').click();
                         }, 1000);
