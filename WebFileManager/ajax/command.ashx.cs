@@ -46,8 +46,14 @@ namespace WebFileManager.ajax
                 case "delete":
                     delete(context);
                     break;
+                case "deleteList":
+                    deleteList(context);
+                    break;
                 case "move":
                     move(context);
+                    break;
+                case "moveList":
+                    moveList(context);
                     break;
                 case "upload":
                     uploads(context);
@@ -70,6 +76,9 @@ namespace WebFileManager.ajax
                 case "ZipFolder":
                     ZipFolder(context);
                     break;
+                case "ZipList":
+                    ZipList(context);
+                    break;
                 case "ViewZip":
                     ViewZip(context);
                     break;
@@ -87,7 +96,7 @@ namespace WebFileManager.ajax
 
         private void CheckExistFile(HttpContext context)
         {
-            
+
         }
 
         private void getlist(HttpContext context)
@@ -308,6 +317,85 @@ namespace WebFileManager.ajax
             }
         }
 
+        private void moveList(HttpContext context)
+        {
+            context.Response.ContentType = "application/json";
+            FileInfo oItem = new FileInfo();
+            try
+            {
+                string sList = context.Request["listID"];
+                var ArrList = sList.Split(';');
+                string sCurrentFolder = getFullPath(context.Request.QueryString["fd"], context);
+                string sNewFolder = getFullPath(context.Request.QueryString["nfd"], context);
+                if (sCurrentFolder == sNewFolder) return;
+
+                foreach (string s in ArrList)
+                {
+                    if (s.Trim().Length == 0) continue;
+                    bool isFile = s.Substring(0, 1) == "T";
+                    string sName = IdToFile(s.Substring(1, s.Length - 1), context);
+
+                    if (isFile)
+                    {
+                        if (!File.Exists(sName))
+                        {
+                            oItem.error = "file not exist";
+                        }
+                        else
+                        {
+                            string newTarget = sNewFolder + "\\" + Path.GetFileName(sName);
+                            if (File.Exists(newTarget))
+                            {
+                                oItem.error = "file target already exist";
+                            }
+                            else
+                            {
+                                File.Move(sName, newTarget);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (!Directory.Exists(sName))
+                        {
+                            oItem.error = "folder not exist";
+                        }
+                        else
+                        {
+                            string sNewFolderMove = sNewFolder + "\\" + Path.GetFileNameWithoutExtension(sName);
+                            if (Directory.Exists(sNewFolderMove))
+                            {
+                                oItem.error = "folder target already exist";
+                            }
+                            else
+                            {
+                                if (sNewFolder.StartsWith(sName))
+                                {
+                                    oItem.error = "canot move to sub this folder";
+                                }
+                                else
+                                {
+                                    System.IO.Directory.Move(sName, sNewFolderMove);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                oItem.error = ex.Message;
+                throw new ApplicationException(ex.Message);
+            }
+            finally
+            {
+                string sContent = Newtonsoft.Json.JsonConvert.SerializeObject(oItem, new JavaScriptDateTimeConverter());
+                context.Response.Clear();
+                context.Response.Write(context.Request["jsoncallback"] + "(" + sContent + ")");
+                context.Response.End();
+            }
+        }
+
         private void delete(HttpContext context)
         {
             context.Response.ContentType = "application/json";
@@ -353,6 +441,57 @@ namespace WebFileManager.ajax
             }
         }
 
+        private void deleteList(HttpContext context)
+        {
+            context.Response.ContentType = "application/json";
+            FileInfo oItem = new FileInfo();
+            try
+            {
+                string sList = context.Request["listID"];
+                var ArrList = sList.Split(';');
+                foreach (string s in ArrList)
+                {
+                    if (s.Trim().Length == 0) continue;
+                    bool isFile = s.Substring(0, 1) == "T";
+                    string sName = IdToFile(s.Substring(1, s.Length - 1), context);
+
+                    if (isFile)
+                    {
+                        if (!File.Exists(sName))
+                        {
+                            oItem.error = "file not exist";
+                        }
+                        else
+                        {
+                            File.Delete(sName);
+                        }
+                    }
+                    else
+                    {
+                        if (!Directory.Exists(sName))
+                        {
+                            oItem.error = "folder not exist";
+                        }
+                        else
+                        {
+                            System.IO.Directory.Delete(sName, true);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                oItem.error = ex.Message;
+                throw new ApplicationException(ex.Message);
+            }
+            finally
+            {
+                string sContent = Newtonsoft.Json.JsonConvert.SerializeObject(oItem, new JavaScriptDateTimeConverter());
+                context.Response.Clear();
+                context.Response.Write(context.Request["jsoncallback"] + "(" + sContent + ")");
+                context.Response.End();
+            }
+        }
         //edit
         private void editText(HttpContext context)
         {
@@ -387,7 +526,7 @@ namespace WebFileManager.ajax
             {
                 string sFile = IdToFile(context.Request["id"], context);
                 string sContent = context.Request["Content"];
-                if(sContent!=null) sContent = sContent.Replace("\\n","\r\n");
+                if (sContent != null) sContent = sContent.Replace("\\n", "\r\n");
                 if (!File.Exists(sFile))
                 {
                     oItem.error = "file not exist";
@@ -575,11 +714,71 @@ namespace WebFileManager.ajax
             {
                 string sContent = Newtonsoft.Json.JsonConvert.SerializeObject(oItem, new JavaScriptDateTimeConverter());
                 context.Response.Clear();
+                context.Response.Write(String.Format("{0}({1})", context.Request["jsoncallback"], sContent));
+                context.Response.End();
+            }
+        }
+
+        private void ZipList(HttpContext context)
+        {
+            context.Response.ContentType = "application/json";
+            FileInfo oItem = new FileInfo();
+            ZipFile zip = new ZipFile();
+            try
+            {
+                string sList = context.Request["listID"];
+                var ArrList = sList.Split(';');
+                string sNewName = context.Request["newname"];
+                string sCurrentFolder = getFullPath(context.Request["fd"],context);
+
+                if (!checkNameNotUse(sNewName, false))
+                {
+                    oItem.error = "canot use file name" + sNewName;
+                    return;
+                }
+                string sFile = sCurrentFolder + "\\" + sNewName + ".zip";
+                if (File.Exists(sFile))
+                {
+                    oItem.error = sNewName + ".zip exist";
+                    return;
+                }
+
+                foreach (string s in ArrList)
+                {
+                    if (s.Trim().Length == 0) continue;
+                    bool isFile = s.Substring(0, 1) == "T";
+                    string sName = IdToFile(s.Substring(1, s.Length - 1), context);
+
+                    if (isFile)
+                    {
+                        if(File.Exists(sName))
+                            zip.AddFile(sName,"");
+                    }
+                    else
+                    {
+                        if (Directory.Exists(sName))
+                        {
+                            zip.AddDirectory(sName, Path.GetFileNameWithoutExtension(sName));
+                        }
+                    }
+                }
+                if(zip.Count>0)
+                    zip.Save(sCurrentFolder + "\\" + sNewName + ".zip");
+            }
+            catch (Exception ex)
+            {
+                oItem.error = ex.Message;
+                throw new ApplicationException(ex.Message);
+            }
+            finally
+            {
+                zip.Dispose();
+                string sContent = Newtonsoft.Json.JsonConvert.SerializeObject(oItem, new JavaScriptDateTimeConverter());
+                context.Response.Clear();
                 context.Response.Write(context.Request["jsoncallback"] + "(" + sContent + ")");
                 context.Response.End();
             }
         }
-        //viewzip
 
         private void DownloadFile(HttpContext context)
         {
@@ -775,7 +974,7 @@ namespace WebFileManager.ajax
             string sFolder = getRootFolder(context);
             string sTree = "";
             sTree = "<li><span title=\"Root\" class=\"open\">Root</span>";
-            ListDirectories(sFolder, ref sTree,context);
+            ListDirectories(sFolder, ref sTree, context);
             sTree += "</li>";
 
             context.Response.ContentType = "text/plain";
@@ -793,7 +992,7 @@ namespace WebFileManager.ajax
                 {
                     var di = new DirectoryInfo(directory);
                     sPath += string.Format("<li><span title=\"{0}\">{1}</span>", di.FullName.Replace(sFolder, "Root").Replace('\\', '/'), di.Name);
-                    ListDirectories(directory, ref sPath,context);
+                    ListDirectories(directory, ref sPath, context);
                     sPath += "</li>";
                 }
                 sPath += "</ul>";

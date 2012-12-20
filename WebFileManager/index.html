@@ -1,9 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>.NET File managerment</title>
-    <link href="Styles/Site.css" rel="stylesheet" type="text/css" />
     <link href="Styles/Styles.css" rel="stylesheet" type="text/css" />
+    <link href="Styles/Site.css" rel="stylesheet" type="text/css" />
+    
     <link href="Styles/popup.css" rel="stylesheet" type="text/css" />
     <link href="Styles/jquery-ui-1.9.1.custom.min.css" rel="stylesheet" type="text/css" />
     <link href="Styles/jquery.treeview.css" rel="stylesheet" type="text/css" />
@@ -21,7 +22,7 @@
         <div class="header">
             <div class="title">
                 <h1>
-                    File manager .Net
+                   .Net File manager
                 </h1>
             </div>
             <div class="clear hideSkiplink">
@@ -38,7 +39,7 @@
                     href="#popup-move" />
                 <input type="button" name="" value="Upload" id="BT_call_Upload" class="button popup-button"
                     onclick="BuildUpload();" href="#popup_Upload" />
-                <input type="button" name="" disabled="disabled" value="Zip" id="BT_Call_Zip" class="button"
+                <input type="button" name="" disabled="disabled" value="Zip" id="BT_Call_Zip" class="button popup-button"
                     href="#popup_Zip" />
                 <input type="button" name="" disabled="disabled" value="Download" id="BT_Call_Download"
                     class="button" />
@@ -55,7 +56,6 @@
                     <li class="size">File size</li>
                     <li class="create">Date create</li>
                     <li class="modify">Date modify</li>
-                    <li class="TitleActive">Active</li>
                 </ul>
                 <ul class="listitem" id="upfd" style="display: none;">
                     <li class="upFolder"><a href="javascript:void(0);">
@@ -243,6 +243,16 @@
                         <input type="button" value="Cancel" id="BT_Property_Cancel" class="bt_cancel button" />
                     </div>
                 </div>
+                <div id="popup_ViewImg" class="popup">
+                    <div class="popup-header">
+                        <h2>Preview</h2>
+                        <p id="lbFileNamePreview"></p>
+                        <a class="close_popup" href="javascript:void(0)" onclick="javascript:resetPu();"></a>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="" id="IMG_Review" style="max-width: 800px;"/>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -250,7 +260,7 @@
         <input type="button" id="BT_Show_Move" class="popup-button" href="#popup-move" />
     </div>
     <div class="footer">
-        Copyright (R) MVT Version 2012 - IM: trai_12a1 - Email: macvantan@gmail.com
+        Copyright (R) MVT Version 2012 - YID: <a href="ymsgr:SendIm?trai_12a1?m=Em%20ch%C3%A0o%20anh%20MVT">trai_12a1</a> - Email: <a href="mailto:macvantan@gmail.com"> macvantan@gmail.com</a> - Facebook: <a href="http://www.facebook.com/macvantan">Mạc Văn Tân</a>
     </div>
     <script src="Scripts/site.js" type="text/javascript"></script>
 </body>
