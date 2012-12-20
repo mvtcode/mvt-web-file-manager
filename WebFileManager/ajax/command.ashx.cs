@@ -19,13 +19,13 @@ namespace WebFileManager.ajax
     {
         public void ProcessRequest(HttpContext context)
         {
-            //context.Response.ContentType = "text/plain";
-            //if (!AllowCall(context))
-            //{
-            //    context.Response.Write("Hello World");
-            //    return;
-            //}
             var cmd = context.Request.QueryString["cmd"];
+            context.Response.ContentType = "text/plain";
+            if (!AllowCall(context) && cmd != "upload")
+            {
+                context.Response.Write("WEllCOME TO MVT .NET FILE MANAGER");
+                return;
+            }
             switch (cmd)
             {
                 case "login":
